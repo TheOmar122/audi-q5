@@ -11,7 +11,7 @@
   <!-- Google Fonts: Inter & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
 
   <style>
     body {
@@ -25,30 +25,29 @@
     /* Animación de flujo en tuberías */
     @keyframes dashPipe {
       to {
-        stroke-dashoffset: -30;
+        stroke-dashoffset: -36;
       }
     }
     .animate-flow {
-      animation: dashPipe 1s linear infinite;
+      animation: dashPipe 0.9s linear infinite;
     }
-    /* Animación de rotación continua para la bomba y volante */
+    /* Animación rotatoria para bomba ATF */
     @keyframes spinClockwise {
       from { transform: rotate(0deg); }
       to { transform: rotate(360deg); }
     }
     .rotate-pump {
-      animation: spinClockwise 2.5s linear infinite;
+      animation: spinClockwise 2.2s linear infinite;
       transform-origin: center;
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col bg-slate-50 text-slate-800 antialiased">
+<body class="min-h-screen flex flex-col bg-slate-50 text-slate-800 antialiased selection:bg-[#BA0C2F] selection:text-white">
 
   <!-- ================= HEADER CORPORATIVO TEMA CLARO ================= -->
   <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm px-4 lg:px-8 py-3">
-    <div class="max-w-[1600px] mx-auto flex flex-wrap items-center justify-between gap-4">
+    <div class="max-w-[1650px] mx-auto flex flex-wrap items-center justify-between gap-4">
       <div class="flex items-center gap-3">
-        <!-- Escudo Audi Q5 -->
         <div class="w-10 h-10 rounded-xl bg-[#BA0C2F] text-white flex items-center justify-center font-black text-lg shadow-sm">
           Q5
         </div>
@@ -62,13 +61,13 @@
             </span>
           </div>
           <p class="text-xs text-slate-500 font-medium">
-            Simulador de Trenes de Potencia • Doble Embrague Concéntrico K1/K2, Bomba ATF y Mecatrónica J743
+            Simulador de Ingeniería Mecatrónica: Doble Embrague K1/K2, Válvulas de Corredera y Flujo de Aceite ATF
           </p>
         </div>
       </div>
 
       <!-- Telemetría Dinámica en Cabecera -->
-      <div class="flex items-center gap-4 text-xs font-mono">
+      <div class="flex items-center gap-3 text-xs font-mono">
         <div class="bg-slate-100 rounded-xl px-3.5 py-1.5 flex items-center gap-3 border border-slate-200">
           <div>
             <span class="text-slate-400 text-[10px] block">RÉGIMEN MOTOR</span>
@@ -81,7 +80,7 @@
           </div>
           <div class="h-6 w-px bg-slate-300"></div>
           <div>
-            <span class="text-slate-400 text-[10px] block">PRESIÓN LÍNEA N472</span>
+            <span class="text-slate-400 text-[10px] block">PRESIÓN EPC N472</span>
             <span id="val-line-pressure" class="text-base font-extrabold text-[#BA0C2F]">5.0 bar</span>
           </div>
         </div>
@@ -96,15 +95,15 @@
   </header>
 
   <!-- BANNER NOTIFICACIÓN DE CRUCE DE EMBRAGUES EN TIEMPO REAL -->
-  <div id="shift-transition-banner" class="hidden max-w-[1600px] mx-auto w-full px-4 lg:px-8 mt-3">
+  <div id="shift-transition-banner" class="hidden max-w-[1650px] mx-auto w-full px-4 lg:px-8 mt-3">
     <div class="w-full bg-amber-50 border-2 border-amber-400 text-amber-900 px-4 py-2.5 rounded-xl text-xs flex items-center gap-3 shadow-sm animate-pulse">
       <span class="w-3 h-3 rounded-full bg-amber-500 shrink-0"></span>
-      <span id="shift-transition-text" class="flex-1"></span>
+      <span id="shift-transition-text" class="flex-1 font-sans leading-relaxed"></span>
     </div>
   </div>
 
   <!-- ================= CONTENEDOR PRINCIPAL ================= -->
-  <main class="max-w-[1600px] w-full mx-auto px-4 lg:px-8 py-5 grid grid-cols-1 xl:grid-cols-12 gap-5 flex-1">
+  <main class="max-w-[1650px] w-full mx-auto px-4 lg:px-8 py-5 grid grid-cols-1 xl:grid-cols-12 gap-5 flex-1">
     
     <!-- COLUMNA IZQUIERDA: PALANCA, MANDOS Y PAR MOTOR (4 Cols) -->
     <div class="xl:col-span-4 flex flex-col gap-4">
@@ -119,7 +118,7 @@
           <!-- Display Marcha Actual -->
           <div class="flex items-baseline gap-1.5">
             <span class="text-xs font-semibold text-slate-400">MARCHA:</span>
-            <span id="gear-display-badge" class="font-mono text-2xl font-black text-[#BA0C2F]">D1</span>
+            <span id="gear-display-badge" class="font-mono text-3xl font-black text-[#BA0C2F]">D1</span>
           </div>
         </div>
 
@@ -155,9 +154,9 @@
           <div>
             <div class="flex justify-between items-center text-xs font-semibold mb-1 text-slate-700">
               <span>Velocidad del Vehículo:</span>
-              <span class="font-mono text-blue-600 font-bold">0 a 220 km/h</span>
+              <span class="font-mono text-blue-600 font-bold">Arrastra para probar cambios</span>
             </div>
-            <input type="range" id="slider-speed" min="0" max="220" value="0" step="1" oninput="onSliderSpeedInput(this.value)" class="w-full h-2 bg-slate-200 rounded-lg accent-[#BA0C2F] cursor-pointer">
+            <input type="range" id="slider-speed" min="0" max="220" value="0" step="1" oninput="onSliderSpeedInput(this.value)" class="w-full h-2.5 bg-slate-200 rounded-lg accent-[#BA0C2F] cursor-pointer">
             <div class="flex justify-between text-[10px] text-slate-400 font-mono mt-0.5">
               <span>0 km/h (Parado)</span>
               <span>100 km/h</span>
@@ -168,10 +167,10 @@
           <!-- Botones Pedales de Acción Rápida -->
           <div class="grid grid-cols-2 gap-2 pt-1">
             <button onclick="pedalAccelerate()" class="py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition">
-              <span>⚡</span> Pisar Acelerador (+10 km/h)
+              <span>⚡</span> Acelerar (+12 km/h)
             </button>
             <button onclick="pedalBrake()" class="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs flex items-center justify-center gap-2 transition">
-              <span>🛑</span> Frenar (-12 km/h)
+              <span>🛑</span> Frenar (-15 km/h)
             </button>
           </div>
 
@@ -205,7 +204,7 @@
       <!-- CARD 2: ESTADO MECÁNICO DE LOS EMBRAGUES CONCÉNTRICOS -->
       <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
         <h3 class="font-bold text-xs uppercase tracking-wider text-slate-700 border-b border-slate-100 pb-2 mb-3 flex items-center justify-between">
-          <span>Doble Embrague Húmedo (Multi-Placas)</span>
+          <span>Doble Embrague Húmedo Concéntrico</span>
           <span class="text-[10px] font-mono text-slate-400">Longitudinal DL501</span>
         </h3>
 
@@ -274,7 +273,7 @@
           <div class="flex items-center gap-2">
             <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
             <h2 class="font-bold text-xs uppercase tracking-wider text-slate-800">
-              Esquema Electrohidráulico del Cuerpo de Válvulas y Doble Embrague (Mechatronic J743)
+              Esquema de Ingeniería Electrohidráulico y Embragues (Mechatronic J743)
             </h2>
           </div>
           <!-- Leyenda de colores -->
@@ -285,7 +284,7 @@
           </div>
         </div>
 
-        <!-- LIENZO SVG TEMA CLARO -->
+        <!-- LIENZO SVG TEMA CLARO CON INTERACTIVIDAD -->
         <div class="w-full overflow-x-auto bg-[#FAFCFF] rounded-xl border border-slate-200 p-2 flex justify-center">
           <svg viewBox="0 0 1000 460" class="w-full max-w-[960px] h-auto select-none font-mono">
             <defs>
@@ -305,10 +304,10 @@
             <rect x="0" y="0" width="1000" height="460" fill="url(#grid-dots)"/>
             <rect x="15" y="15" width="970" height="430" rx="10" fill="none" stroke="#E2E8F0" stroke-width="1.5"/>
 
-            <text x="35" y="42" fill="#64748B" font-size="11" font-weight="700">AUDI AG • MECHATRONIC J743 / CUERPO DE VÁLVULAS DL501 (0B5)</text>
+            <text x="35" y="42" fill="#64748B" font-size="11" font-weight="700">AUDI AG • MECHATRONIC J743 / CUERPO DE VÁLVULAS DL501 (0B5) — [HAZ CLIC EN UN ELEMENTO PARA INSPECCIONARLO]</text>
 
             <!-- 1. BOMBA DE ACEITE ATF MECÁNICA -->
-            <g id="svg-pump-block" transform="translate(35, 70)">
+            <g id="svg-pump-block" transform="translate(35, 70)" class="cursor-pointer" onclick="inspectComponent('PUMP')">
               <rect x="0" y="0" width="115" height="75" rx="8" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.5"/>
               <circle cx="57" cy="38" r="24" fill="#FFFFFF" stroke="#94A3B8" stroke-width="1.5"/>
               <g class="rotate-pump">
@@ -322,8 +321,10 @@
             </g>
 
             <!-- 2. VÁLVULA EPC PRINCIPAL N472 -->
-            <g id="svg-valve-N472" transform="translate(205, 70)">
+            <g id="svg-valve-N472" transform="translate(205, 70)" class="cursor-pointer" onclick="inspectComponent('N472')">
               <rect id="svg-rect-N472" x="0" y="0" width="115" height="75" rx="8" fill="#FEE2E2" stroke="#DC2626" stroke-width="2"/>
+              <!-- Corredera spool interna -->
+              <rect id="svg-spool-N472" x="15" y="10" width="12" height="15" rx="2" fill="#DC2626" class="transition-transform duration-300"/>
               <text id="svg-title-N472" x="57" y="24" fill="#991B1B" font-size="11" font-weight="bold" text-anchor="middle">N472 (EPC)</text>
               <text x="57" y="42" fill="#7F1D1D" font-size="8.5" text-anchor="middle">Presión Principal</text>
               <rect x="18" y="50" width="80" height="18" rx="4" fill="#FFFFFF" stroke="#FECACA"/>
@@ -331,8 +332,9 @@
             </g>
 
             <!-- 3. VÁLVULA DE REFRIGERACIÓN N471 -->
-            <g id="svg-valve-N471" transform="translate(35, 195)">
+            <g id="svg-valve-N471" transform="translate(35, 195)" class="cursor-pointer" onclick="inspectComponent('N471')">
               <rect id="svg-rect-N471" x="0" y="0" width="115" height="65" rx="8" fill="#FEE2E2" stroke="#DC2626" stroke-width="1.5"/>
+              <rect id="svg-spool-N471" x="12" y="8" width="10" height="12" rx="2" fill="#DC2626" class="transition-transform duration-300"/>
               <text x="57" y="22" fill="#991B1B" font-size="10" font-weight="bold" text-anchor="middle">N471 (Cooling)</text>
               <text x="57" y="38" fill="#7F1D1D" font-size="8" text-anchor="middle">Refrig. Embrague</text>
               <text id="svg-val-N471" x="57" y="54" fill="#DC2626" font-size="9.5" font-weight="bold" text-anchor="middle">4.2 bar</text>
@@ -341,27 +343,39 @@
             <!-- 4. SUBTRANS-1 (K1 IMPARES) - VÁLVULAS N435 Y N436 -->
             <g transform="translate(370, 50)">
               <!-- N435 Seguridad K1 -->
-              <rect id="svg-rect-N435" x="0" y="0" width="105" height="50" rx="6" fill="#FEE2E2" stroke="#DC2626" stroke-width="1.5"/>
-              <text x="52" y="20" fill="#991B1B" font-size="9.5" font-weight="bold" text-anchor="middle">N435 (Cut K1)</text>
-              <text id="svg-val-N435" x="52" y="38" fill="#DC2626" font-size="9" text-anchor="middle">ON (12V)</text>
+              <g class="cursor-pointer" onclick="inspectComponent('N435')">
+                <rect id="svg-rect-N435" x="0" y="0" width="105" height="50" rx="6" fill="#FEE2E2" stroke="#DC2626" stroke-width="1.5"/>
+                <rect id="svg-spool-N435" x="8" y="8" width="10" height="12" rx="2" fill="#DC2626" class="transition-transform duration-300"/>
+                <text x="52" y="20" fill="#991B1B" font-size="9.5" font-weight="bold" text-anchor="middle">N435 (Cut K1)</text>
+                <text id="svg-val-N435" x="52" y="38" fill="#DC2626" font-size="9" text-anchor="middle">ON (12V)</text>
+              </g>
 
               <!-- N436 Regulador K1 -->
-              <rect id="svg-rect-N436" x="125" y="0" width="115" height="50" rx="6" fill="#FEE2E2" stroke="#DC2626" stroke-width="2"/>
-              <text x="57" y="20" fill="#991B1B" font-size="9.5" font-weight="bold" text-anchor="middle" transform="translate(125,0)">N436 (VFS K1)</text>
-              <text id="svg-val-N436" x="57" y="38" fill="#DC2626" font-size="10" font-weight="bold" text-anchor="middle" transform="translate(125,0)">9.2 bar (82%)</text>
+              <g class="cursor-pointer" onclick="inspectComponent('N436')">
+                <rect id="svg-rect-N436" x="125" y="0" width="115" height="50" rx="6" fill="#FEE2E2" stroke="#DC2626" stroke-width="2"/>
+                <rect id="svg-spool-N436" x="133" y="8" width="10" height="12" rx="2" fill="#DC2626" class="transition-transform duration-300"/>
+                <text x="57" y="20" fill="#991B1B" font-size="9.5" font-weight="bold" text-anchor="middle" transform="translate(125,0)">N436 (VFS K1)</text>
+                <text id="svg-val-N436" x="57" y="38" fill="#DC2626" font-size="10" font-weight="bold" text-anchor="middle" transform="translate(125,0)">9.2 bar (82%)</text>
+              </g>
             </g>
 
             <!-- 5. SUBTRANS-2 (K2 PARES) - VÁLVULAS N439 Y N440 -->
             <g transform="translate(370, 115)">
               <!-- N439 Seguridad K2 -->
-              <rect id="svg-rect-N439" x="0" y="0" width="105" height="50" rx="6" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1"/>
-              <text x="52" y="20" fill="#475569" font-size="9.5" font-weight="bold" text-anchor="middle">N439 (Cut K2)</text>
-              <text id="svg-val-N439" x="52" y="38" fill="#64748B" font-size="9" text-anchor="middle">OFF (0V)</text>
+              <g class="cursor-pointer" onclick="inspectComponent('N439')">
+                <rect id="svg-rect-N439" x="0" y="0" width="105" height="50" rx="6" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1"/>
+                <rect id="svg-spool-N439" x="8" y="8" width="10" height="12" rx="2" fill="#94A3B8" class="transition-transform duration-300"/>
+                <text x="52" y="20" fill="#475569" font-size="9.5" font-weight="bold" text-anchor="middle">N439 (Cut K2)</text>
+                <text id="svg-val-N439" x="52" y="38" fill="#64748B" font-size="9" text-anchor="middle">OFF (0V)</text>
+              </g>
 
               <!-- N440 Regulador K2 -->
-              <rect id="svg-rect-N440" x="125" y="0" width="115" height="50" rx="6" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1"/>
-              <text x="57" y="20" fill="#475569" font-size="9.5" font-weight="bold" text-anchor="middle" transform="translate(125,0)">N440 (VFS K2)</text>
-              <text id="svg-val-N440" x="57" y="38" fill="#64748B" font-size="10" font-weight="bold" text-anchor="middle" transform="translate(125,0)">0.0 bar (0%)</text>
+              <g class="cursor-pointer" onclick="inspectComponent('N440')">
+                <rect id="svg-rect-N440" x="125" y="0" width="115" height="50" rx="6" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1"/>
+                <rect id="svg-spool-N440" x="133" y="8" width="10" height="12" rx="2" fill="#94A3B8" class="transition-transform duration-300"/>
+                <text x="57" y="20" fill="#475569" font-size="9.5" font-weight="bold" text-anchor="middle" transform="translate(125,0)">N440 (VFS K2)</text>
+                <text id="svg-val-N440" x="57" y="38" fill="#64748B" font-size="10" font-weight="bold" text-anchor="middle" transform="translate(125,0)">0.0 bar (0%)</text>
+              </g>
             </g>
 
             <!-- 6. REPRESENTACIÓN MECÁNICA DE LOS EMBRAGUES CONCÉNTRICOS K1 / K2 -->
@@ -370,41 +384,61 @@
               <text x="135" y="22" fill="#475569" font-size="10" font-weight="bold" text-anchor="middle">CONJUNTO MULTIDISCO CONCÉNTRICO</text>
 
               <!-- K1 Exterior -->
-              <rect id="svg-clutch-k1" x="20" y="32" width="230" height="42" rx="6" fill="#FEE2E2" stroke="#DC2626" stroke-width="2"/>
-              <text x="135" y="52" fill="#991B1B" font-size="11" font-weight="bold" text-anchor="middle">EMBRAGUE K1 (EXTERIOR)</text>
-              <text x="135" y="66" fill="#B91C1C" font-size="8.5" text-anchor="middle">Eje Primario 1 (Macizo) ➜ 1.ª, 3.ª, 5.ª, 7.ª</text>
+              <g class="cursor-pointer" onclick="inspectComponent('K1')">
+                <rect id="svg-clutch-k1" x="20" y="32" width="230" height="42" rx="6" fill="#FEE2E2" stroke="#DC2626" stroke-width="2"/>
+                <!-- Discos de fricción K1 -->
+                <line id="svg-discs-k1" x1="28" y1="36" x2="28" y2="70" stroke="#DC2626" stroke-width="4" stroke-dasharray="3,2"/>
+                <text x="135" y="52" fill="#991B1B" font-size="11" font-weight="bold" text-anchor="middle">EMBRAGUE K1 (EXTERIOR)</text>
+                <text x="135" y="66" fill="#B91C1C" font-size="8.5" text-anchor="middle">Eje Primario 1 (Macizo) ➜ 1.ª, 3.ª, 5.ª, 7.ª</text>
+              </g>
 
               <!-- K2 Interior -->
-              <rect id="svg-clutch-k2" x="35" y="82" width="200" height="42" rx="6" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1.5"/>
-              <text x="135" y="102" fill="#2563EB" font-size="11" font-weight="bold" text-anchor="middle">EMBRAGUE K2 (INTERIOR)</text>
-              <text x="135" y="116" fill="#1D4ED8" font-size="8.5" text-anchor="middle">Eje Primario 2 (Hueco) ➜ 2.ª, 4.ª, 6.ª, R</text>
+              <g class="cursor-pointer" onclick="inspectComponent('K2')">
+                <rect id="svg-clutch-k2" x="35" y="82" width="200" height="42" rx="6" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1.5"/>
+                <!-- Discos de fricción K2 -->
+                <line id="svg-discs-k2" x1="43" y1="86" x2="43" y2="120" stroke="#CBD5E1" stroke-width="4" stroke-dasharray="3,2"/>
+                <text x="135" y="102" fill="#2563EB" font-size="11" font-weight="bold" text-anchor="middle">EMBRAGUE K2 (INTERIOR)</text>
+                <text x="135" y="116" fill="#1D4ED8" font-size="8.5" text-anchor="middle">Eje Primario 2 (Hueco) ➜ 2.ª, 4.ª, 6.ª, R</text>
+              </g>
             </g>
 
             <!-- 7. SOLENOIDES DE HORQUILLA (N433, N437, N434, N438) -->
             <g transform="translate(180, 210)">
               <!-- N433 (1-3) -->
-              <rect id="svg-rect-N433" x="0" y="0" width="120" height="52" rx="6" fill="#FEE2E2" stroke="#DC2626" stroke-width="1.5"/>
-              <text x="60" y="20" fill="#991B1B" font-size="9.5" font-weight="bold" text-anchor="middle">N433 (N88)</text>
-              <text x="60" y="34" fill="#7F1D1D" font-size="8" text-anchor="middle">Horquilla 1 - 3</text>
-              <text id="svg-val-N433" x="60" y="47" fill="#DC2626" font-size="9" font-weight="bold" text-anchor="middle">4.8 bar</text>
+              <g class="cursor-pointer" onclick="inspectComponent('N433')">
+                <rect id="svg-rect-N433" x="0" y="0" width="120" height="52" rx="6" fill="#FEE2E2" stroke="#DC2626" stroke-width="1.5"/>
+                <rect id="svg-spool-N433" x="8" y="8" width="10" height="12" rx="2" fill="#DC2626" class="transition-transform duration-300"/>
+                <text x="60" y="20" fill="#991B1B" font-size="9.5" font-weight="bold" text-anchor="middle">N433 (N88)</text>
+                <text x="60" y="34" fill="#7F1D1D" font-size="8" text-anchor="middle">Horquilla 1 - 3</text>
+                <text id="svg-val-N433" x="60" y="47" fill="#DC2626" font-size="9" font-weight="bold" text-anchor="middle">4.8 bar</text>
+              </g>
 
               <!-- N437 (2-R) -->
-              <rect id="svg-rect-N437" x="150" y="0" width="120" height="52" rx="6" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
-              <text x="210" y="20" fill="#92400E" font-size="9.5" font-weight="bold" text-anchor="middle">N437 (N89)</text>
-              <text x="210" y="34" fill="#78350F" font-size="8" text-anchor="middle">Horquilla 2 - R</text>
-              <text id="svg-val-N437" x="210" y="47" fill="#D97706" font-size="9" font-weight="bold" text-anchor="middle">4.8 bar (Pre)</text>
+              <g class="cursor-pointer" onclick="inspectComponent('N437')">
+                <rect id="svg-rect-N437" x="150" y="0" width="120" height="52" rx="6" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+                <rect id="svg-spool-N437" x="158" y="8" width="10" height="12" rx="2" fill="#D97706" class="transition-transform duration-300"/>
+                <text x="210" y="20" fill="#92400E" font-size="9.5" font-weight="bold" text-anchor="middle">N437 (N89)</text>
+                <text x="210" y="34" fill="#78350F" font-size="8" text-anchor="middle">Horquilla 2 - R</text>
+                <text id="svg-val-N437" x="210" y="47" fill="#D97706" font-size="9" font-weight="bold" text-anchor="middle">4.8 bar (Pre)</text>
+              </g>
 
               <!-- N434 (5-7) -->
-              <rect id="svg-rect-N434" x="300" y="0" width="120" height="52" rx="6" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1"/>
-              <text x="360" y="20" fill="#475569" font-size="9.5" font-weight="bold" text-anchor="middle">N434 (N90)</text>
-              <text x="360" y="34" fill="#64748B" font-size="8" text-anchor="middle">Horquilla 5 - 7</text>
-              <text id="svg-val-N434" x="360" y="47" fill="#94A3B8" font-size="9" text-anchor="middle">0.0 bar</text>
+              <g class="cursor-pointer" onclick="inspectComponent('N434')">
+                <rect id="svg-rect-N434" x="300" y="0" width="120" height="52" rx="6" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1"/>
+                <rect id="svg-spool-N434" x="308" y="8" width="10" height="12" rx="2" fill="#94A3B8" class="transition-transform duration-300"/>
+                <text x="360" y="20" fill="#475569" font-size="9.5" font-weight="bold" text-anchor="middle">N434 (N90)</text>
+                <text x="360" y="34" fill="#64748B" font-size="8" text-anchor="middle">Horquilla 5 - 7</text>
+                <text id="svg-val-N434" x="360" y="47" fill="#94A3B8" font-size="9" text-anchor="middle">0.0 bar</text>
+              </g>
 
               <!-- N438 (4-6) -->
-              <rect id="svg-rect-N438" x="450" y="0" width="120" height="52" rx="6" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1"/>
-              <text x="510" y="20" fill="#475569" font-size="9.5" font-weight="bold" text-anchor="middle">N438 (N91)</text>
-              <text x="510" y="34" fill="#64748B" font-size="8" text-anchor="middle">Horquilla 4 - 6</text>
-              <text id="svg-val-N438" x="510" y="47" fill="#94A3B8" font-size="9" text-anchor="middle">0.0 bar</text>
+              <g class="cursor-pointer" onclick="inspectComponent('N438')">
+                <rect id="svg-rect-N438" x="450" y="0" width="120" height="52" rx="6" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1"/>
+                <rect id="svg-spool-N438" x="458" y="8" width="10" height="12" rx="2" fill="#94A3B8" class="transition-transform duration-300"/>
+                <text x="510" y="20" fill="#475569" font-size="9.5" font-weight="bold" text-anchor="middle">N438 (N91)</text>
+                <text x="510" y="34" fill="#64748B" font-size="8" text-anchor="middle">Horquilla 4 - 6</text>
+                <text id="svg-val-N438" x="510" y="47" fill="#94A3B8" font-size="9" text-anchor="middle">0.0 bar</text>
+              </g>
             </g>
 
             <!-- 8. CILINDROS MECÁNICOS Y HORQUILLAS SELECTORAS -->
@@ -412,29 +446,29 @@
               <!-- Cilindro 1-3 -->
               <rect x="0" y="0" width="120" height="70" rx="6" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.5"/>
               <line x1="20" y1="35" x2="100" y2="35" stroke="#94A3B8" stroke-width="3"/>
-              <rect id="svg-piston-1-3" x="86" y="10" width="18" height="50" rx="3" fill="#10B981"/>
-              <text x="60" y="85" fill="#475569" font-size="9" font-weight="bold" text-anchor="middle">Cilindro 1-3</text>
+              <rect id="svg-piston-1-3" x="86" y="10" width="18" height="50" rx="3" fill="#10B981" class="transition-all duration-300"/>
+              <text x="60" y="85" fill="#475569" font-size="9" font-weight="bold" text-anchor="middle">Cilindro 1-3 (G487)</text>
 
               <!-- Cilindro 2-R -->
               <rect x="150" y="0" width="120" height="70" rx="6" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.5"/>
               <line x1="170" y1="35" x2="250" y2="35" stroke="#94A3B8" stroke-width="3"/>
-              <rect id="svg-piston-2-R" x="236" y="10" width="18" height="50" rx="3" fill="#F59E0B"/>
-              <text x="210" y="85" fill="#475569" font-size="9" font-weight="bold" text-anchor="middle">Cilindro 2-R</text>
+              <rect id="svg-piston-2-R" x="236" y="10" width="18" height="50" rx="3" fill="#F59E0B" class="transition-all duration-300"/>
+              <text x="210" y="85" fill="#475569" font-size="9" font-weight="bold" text-anchor="middle">Cilindro 2-R (G489)</text>
 
               <!-- Cilindro 5-7 -->
               <rect x="300" y="0" width="120" height="70" rx="6" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.5"/>
               <line x1="320" y1="35" x2="400" y2="35" stroke="#94A3B8" stroke-width="3"/>
-              <rect id="svg-piston-5-7" x="351" y="10" width="18" height="50" rx="3" fill="#94A3B8"/>
-              <text x="360" y="85" fill="#475569" font-size="9" font-weight="bold" text-anchor="middle">Cilindro 5-7</text>
+              <rect id="svg-piston-5-7" x="351" y="10" width="18" height="50" rx="3" fill="#94A3B8" class="transition-all duration-300"/>
+              <text x="360" y="85" fill="#475569" font-size="9" font-weight="bold" text-anchor="middle">Cilindro 5-7 (G488)</text>
 
               <!-- Cilindro 4-6 -->
               <rect x="450" y="0" width="120" height="70" rx="6" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.5"/>
               <line x1="470" y1="35" x2="550" y2="35" stroke="#94A3B8" stroke-width="3"/>
-              <rect id="svg-piston-4-6" x="501" y="10" width="18" height="50" rx="3" fill="#94A3B8"/>
-              <text x="510" y="85" fill="#475569" font-size="9" font-weight="bold" text-anchor="middle">Cilindro 4-6</text>
+              <rect id="svg-piston-4-6" x="501" y="10" width="18" height="50" rx="3" fill="#94A3B8" class="transition-all duration-300"/>
+              <text x="510" y="85" fill="#475569" font-size="9" font-weight="bold" text-anchor="middle">Cilindro 4-6 (G490)</text>
             </g>
 
-            <!-- 9. CAÑERÍAS HIDRÁULICAS CONECTIVAS -->
+            <!-- 9. CAÑERÍAS HIDRÁULICAS CONECTIVAS CON DIRECCIÓN DE FLUJO -->
             <!-- Bomba a EPC N472 -->
             <path d="M 150 107 L 205 107" stroke="#DC2626" stroke-width="3.5" class="animate-flow" stroke-dasharray="6,3" marker-end="url(#arrow-red)"/>
             <!-- N472 a K1 (N435/N436) -->
@@ -445,10 +479,11 @@
             <path id="pipe-k2" d="M 345 107 L 345 140 L 370 140" stroke="#E2E8F0" stroke-width="2"/>
             <!-- N440 a K2 Embrague -->
             <path d="M 610 140 L 720 140" stroke="#E2E8F0" stroke-width="2"/>
-            <!-- Línea hacia horquilla 1-3 -->
-            <path d="M 240 262 L 240 310" stroke="#DC2626" stroke-width="2.5" class="animate-flow" stroke-dasharray="6,3" marker-end="url(#arrow-red)"/>
-            <!-- Línea hacia horquilla 2-R -->
-            <path d="M 390 262 L 390 310" stroke="#D97706" stroke-width="2.5" class="animate-flow" stroke-dasharray="6,3"/>
+            <!-- Líneas hacia horquillas -->
+            <path id="pipe-fork-1-3" d="M 240 262 L 240 310" stroke="#DC2626" stroke-width="2.5" class="animate-flow" stroke-dasharray="6,3" marker-end="url(#arrow-red)"/>
+            <path id="pipe-fork-2-R" d="M 390 262 L 390 310" stroke="#D97706" stroke-width="2.5" class="animate-flow" stroke-dasharray="6,3"/>
+            <path id="pipe-fork-5-7" d="M 540 262 L 540 310" stroke="#E2E8F0" stroke-width="1.5"/>
+            <path id="pipe-fork-4-6" d="M 690 262 L 690 310" stroke="#E2E8F0" stroke-width="1.5"/>
           </svg>
         </div>
       </div>
@@ -456,23 +491,71 @@
       <!-- CARD 4: PESTAÑAS DE ANÁLISIS TÉCNICO Y CURVAS -->
       <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
         <!-- Barra de Pestañas -->
-        <div class="flex border-b border-slate-200 bg-slate-50/80 px-2 pt-1 gap-1">
-          <button id="btn-tab-solenoids" onclick="switchTab('tab-solenoids')" class="px-4 py-2.5 font-bold text-xs uppercase border-b-2 border-[#BA0C2F] text-[#BA0C2F] bg-red-50/50">
+        <div class="flex flex-wrap border-b border-slate-200 bg-slate-50/80 px-2 pt-1 gap-1">
+          <button id="btn-tab-inspector" onclick="switchTab('tab-inspector')" class="px-4 py-2.5 font-bold text-xs uppercase border-b-2 border-[#BA0C2F] text-[#BA0C2F] bg-red-50/50">
+            🔍 Ficha Técnica de Componente
+          </button>
+          <button id="btn-tab-solenoids" onclick="switchTab('tab-solenoids')" class="px-4 py-2.5 font-bold text-xs uppercase border-b-2 border-transparent text-slate-500 hover:text-slate-800">
             Matriz de Solenoides en Vivo
           </button>
           <button id="btn-tab-fluid" onclick="switchTab('tab-fluid')" class="px-4 py-2.5 font-bold text-xs uppercase border-b-2 border-transparent text-slate-500 hover:text-slate-800">
-            Flujo de Aceite y Explicación
+            Ruta Hidráulica Paso a Paso
           </button>
           <button id="btn-tab-curves" onclick="switchTab('tab-curves')" class="px-4 py-2.5 font-bold text-xs uppercase border-b-2 border-transparent text-slate-500 hover:text-slate-800">
             Curvas de Torque y Potencia
           </button>
           <button id="btn-tab-diag" onclick="switchTab('tab-diag')" class="px-4 py-2.5 font-bold text-xs uppercase border-b-2 border-transparent text-slate-500 hover:text-slate-800">
-            Consola CAN Bus / OBD-II
+            CAN Bus / OBD-II
           </button>
         </div>
 
+        <!-- CONTENIDO PESTAÑA INSPECTOR DE COMPONENTE -->
+        <div id="content-tab-inspector" class="p-5 space-y-4">
+          <div class="flex items-start justify-between border-b border-slate-200 pb-3">
+            <div>
+              <h4 id="dossier-title" class="font-extrabold text-base text-slate-900">Válvula Reguladora de Presión Principal (EPC)</h4>
+              <span id="dossier-code" class="text-xs font-mono font-bold text-[#BA0C2F]">N472 / VFS-Line (VAG 0B5 927 156)</span>
+            </div>
+            <span class="text-[10px] bg-slate-100 text-slate-600 border border-slate-200 px-2.5 py-1 rounded-full font-mono">
+              SSP 429 • Audi S-tronic
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs font-mono">
+            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+              <span class="text-[10px] text-slate-400 block font-sans">TIPO DE ACTUADOR</span>
+              <span id="dossier-type" class="font-bold text-slate-800">Válvula proporcional VFS</span>
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+              <span class="text-[10px] text-slate-400 block font-sans">RESISTENCIA ELÉCTRICA</span>
+              <span id="dossier-resist" class="font-bold text-slate-800">4.8 ± 0.3 Ω</span>
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+              <span class="text-[10px] text-slate-400 block font-sans">SEÑAL DE CONTROL</span>
+              <span id="dossier-signal" class="font-bold text-blue-600">PWM 1000 Hz</span>
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+              <span class="text-[10px] text-slate-400 block font-sans">RANGO DE PRESIÓN</span>
+              <span id="dossier-press" class="font-bold text-[#BA0C2F]">5.0 - 16.0 bar</span>
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 md:col-span-2">
+              <span class="text-[10px] text-slate-400 block font-sans">UBICACIÓN FÍSICA</span>
+              <span id="dossier-loc" class="font-bold text-slate-800">Placa Mechatronic J743</span>
+            </div>
+          </div>
+
+          <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+            <h5 class="text-xs font-bold text-slate-800 uppercase mb-1">Principio de Funcionamiento Ingenieril:</h5>
+            <p id="dossier-func" class="text-xs text-slate-600 leading-relaxed font-sans"></p>
+          </div>
+
+          <div class="p-3 bg-red-50 rounded-xl border border-red-200 text-xs text-red-900 font-mono">
+            <strong>CÓDIGO DE AVERÍA (DTC ASOCIADO):</strong> <span id="dossier-dtc"></span>
+          </div>
+        </div>
+
         <!-- CONTENIDO PESTAÑA 1: TABLA DE SOLENOIDES -->
-        <div id="content-tab-solenoids" class="p-4">
+        <div id="content-tab-solenoids" class="p-4 hidden">
           <div class="overflow-x-auto">
             <table class="w-full text-left text-xs border-collapse">
               <thead>
@@ -502,7 +585,7 @@
           </div>
           <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200">
             <h5 class="text-xs font-bold text-slate-700 uppercase mb-1">Fundamento Mecatrónico del S-tronic:</h5>
-            <p id="tech-summary-text" class="text-xs text-slate-600 leading-relaxed"></p>
+            <p id="tech-summary-text" class="text-xs text-slate-600 leading-relaxed font-sans"></p>
           </div>
         </div>
 
@@ -517,21 +600,19 @@
                 <span class="text-[10px] text-slate-400 font-mono">Medición Banco / OBD-II</span>
               </h5>
               <svg viewBox="0 0 400 220" class="w-full h-auto bg-white rounded-lg border border-slate-200 p-2 font-mono text-[9px]">
-                <!-- Ejes -->
                 <line x1="40" y1="180" x2="380" y2="180" stroke="#94A3B8" stroke-width="1.5"/>
                 <line x1="40" y1="20" x2="40" y2="180" stroke="#94A3B8" stroke-width="1.5"/>
                 
-                <!-- Marcas RPM -->
                 <text x="40" y="195" fill="#64748B">1000</text>
                 <text x="120" y="195" fill="#64748B">2500</text>
                 <text x="210" y="195" fill="#64748B">4200</text>
                 <text x="310" y="195" fill="#64748B">6000</text>
                 
-                <!-- Curva de Par (350 Nm plana entre 1500 y 4200 rpm) -->
+                <!-- Curva de Par -->
                 <path d="M 40 140 Q 70 50, 100 50 L 220 50 Q 280 65, 360 130" fill="none" stroke="#BA0C2F" stroke-width="3"/>
                 <text x="140" y="42" fill="#BA0C2F" font-weight="bold">Par Máx: 350 Nm (1500-4200 rpm)</text>
                 
-                <!-- Curva de Potencia (211 CV a 4300-6000 rpm) -->
+                <!-- Curva de Potencia -->
                 <path d="M 40 170 Q 150 120, 220 60 L 320 50 Q 350 55, 370 80" fill="none" stroke="#0284C7" stroke-width="3" stroke-dasharray="4,2"/>
                 <text x="220" y="32" fill="#0284C7" font-weight="bold">Potencia: 211 CV (155 kW)</text>
               </svg>
@@ -2033,19 +2114,164 @@ const SOLENOID_SPECS = {
     "description": "Regula la presión de línea del sistema mecatrónico entre 5.0 y 16.0 bar para todo el cuerpo de válvulas."
   }
 };
+const COMPONENT_DOSSIER = {
+  "N472": {
+    "title": "Válvula Reguladora de Presión Principal (EPC)",
+    "code": "N472 / VFS-Line (VAG 0B5 927 156)",
+    "type": "Válvula de presión proporcional VFS (PWM a 1000 Hz)",
+    "resistance": "4.8 ± 0.3 Ω a 20 °C",
+    "signal": "Modulación por ancho de pulso (Duty Cycle: 10% - 90%)",
+    "pressure": "5.0 - 16.0 bar de presión de línea del sistema",
+    "location": "Placa Mechatronic J743 - Módulo inferior del cuerpo de válvulas",
+    "function": "Ajusta la presión general del circuito hidráulico generada por la bomba ATF. En ralentí y velocidad de crucero sin carga opera a 5.0 bar para minimizar pérdidas por bombeo y ahorrar combustible. En aceleración a fondo (WOT) eleva la presión hasta 15.5 bar para garantizar que los embragues transmitan los 350 Nm del motor 2.0 TFSI sin deslizar.",
+    "dtc": "P17BF: Falla en modulación de presión de línea / Límite de adaptación alcanzado"
+  },
+  "N436": {
+    "title": "Válvula Proporcional de Embrague K1 (Subtransmisión 1)",
+    "code": "N436 / VFS K1 (VAG 0B5 927 156)",
+    "type": "Regulador proporcional de presión de alta dinámica",
+    "resistance": "4.8 ± 0.3 Ω",
+    "signal": "PWM 1000 Hz pilotado por TCU J743",
+    "pressure": "0.0 - 10.5 bar aplicados al pistón de K1",
+    "location": "Cuerpo hidráulico superior de la mecatrónica",
+    "function": "Pilota directamente el caudal y la presión de aceite ATF hacia el pistón anular del embrague K1 (discos exteriores para marchas 1, 3, 5, 7). Regula el punto de contacto (Kiss Point) y el cruce de embrague durante los cambios ascendentes y descendentes.",
+    "dtc": "P17D8: Limitación de par debida a la temperatura del embrague / Desviación de presión en K1"
+  },
+  "N440": {
+    "title": "Válvula Proporcional de Embrague K2 (Subtransmisión 2)",
+    "code": "N440 / VFS K2 (VAG 0B5 927 156)",
+    "type": "Regulador proporcional de presión de alta dinámica",
+    "resistance": "4.8 ± 0.3 Ω",
+    "signal": "PWM 1000 Hz pilotado por TCU J743",
+    "pressure": "0.0 - 10.5 bar aplicados al pistón de K2",
+    "location": "Cuerpo hidráulico superior de la mecatrónica",
+    "function": "Pilota la presión hacia el pistón de K2 (discos interiores concéntricos para marchas pares 2, 4, 6 y Reversa). Trabaja en oposición de fase con N436 durante las transiciones de marcha.",
+    "dtc": "P17D5: Válvula reguladora de embrague 2, fallo eléctrico o atascamiento de corredera"
+  },
+  "N435": {
+    "title": "Válvula de Seguridad Subtransmisión 1 (K1 Cut-Off)",
+    "code": "N435 / Válvula de corte rápido",
+    "type": "Solenoide de conmutación 3/2 vías ON/OFF (12V)",
+    "resistance": "4.8 ± 0.3 Ω",
+    "signal": "Digital 12V (Abierta) / 0V (Cerrada a retorno)",
+    "pressure": "0 bar (Descarga instantánea) / Presión de línea",
+    "location": "Bloque de seguridad J743",
+    "function": "Desconecta hidráulicamente la subtransmisión impar en caso de emergencia, sobretemperatura o fallo de sincronización, drenando el aceite de K1 en menos de 20 ms.",
+    "dtc": "P175E: Embrague 1 se cierra involuntariamente / Fuga interna en válvula N435"
+  },
+  "N439": {
+    "title": "Válvula de Seguridad Subtransmisión 2 (K2 Cut-Off)",
+    "code": "N439 / Válvula de corte rápido",
+    "type": "Solenoide de conmutación 3/2 vías ON/OFF (12V)",
+    "resistance": "4.8 ± 0.3 Ω",
+    "signal": "Digital 12V (Abierta) / 0V (Cerrada a retorno)",
+    "pressure": "0 bar (Descarga instantánea) / Presión de línea",
+    "location": "Bloque de seguridad J743",
+    "function": "Desconecta la subtransmisión par en caso de emergencia, aislando el eje hueco 2 para proteger la caja de cambios.",
+    "dtc": "P176F: Embrague 2 se cierra involuntariamente / Fuga interna en válvula N439"
+  },
+  "N471": {
+    "title": "Válvula Dosificadora de Refrigeración ATF de Embragues",
+    "code": "N471 / Válvula de flujo térmico",
+    "type": "Válvula proporcional de caudal",
+    "resistance": "4.8 ± 0.3 Ω",
+    "signal": "PWM 1000 Hz",
+    "pressure": "1.0 - 6.0 bar de aceite refrigerante",
+    "location": "Circuito de lubricación y refrigeración mecatrónica",
+    "function": "Inyecta aceite ATF refrigerado directamente al núcleo de los paquetes de discos de K1 y K2 para disipar el calor generado por fricción durante los arranques y los cambios de marcha.",
+    "dtc": "P179E: Sensor de temperatura/refrigeración señal no plausible"
+  },
+  "N433": {
+    "title": "Solenoide de Accionamiento Horquilla 1-3",
+    "code": "N433 / Solenoide 1 (N88 genérico)",
+    "type": "Solenoide de conmutación de pilotaje hidráulico",
+    "resistance": "4.8 ± 0.3 Ω",
+    "signal": "12 V de mando directo",
+    "pressure": "4.8 bar en cámara de actuación",
+    "location": "Módulo de correderas de horquilla J743",
+    "function": "Presuriza la cámara izquierda (+8.5 mm para 1.ª) o derecha (-8.5 mm para 3.ª) del cilindro selector para mover el manguito de sincronización. En neutro se despresuriza (0.0 mm).",
+    "dtc": "P17E0: Accionador de marcha 1, fallo mecánico o carrera bloqueada"
+  },
+  "N437": {
+    "title": "Solenoide de Accionamiento Horquilla 2-R",
+    "code": "N437 / Solenoide 2 (N89 genérico)",
+    "type": "Solenoide de conmutación de pilotaje hidráulico",
+    "resistance": "4.8 ± 0.3 Ω",
+    "signal": "12 V de mando directo",
+    "pressure": "4.8 bar en cámara de actuación",
+    "location": "Módulo de correderas de horquilla J743",
+    "function": "Mueve el manguito sincronizador hacia 2.ª marcha (+8.5 mm) o hacia Reversa (-8.5 mm). En modo Drive se activa de forma preventiva para preseleccionar la 2.ª marcha.",
+    "dtc": "P17E1: Accionador de marcha 2, error de posición"
+  },
+  "N434": {
+    "title": "Solenoide de Accionamiento Horquilla 5-7",
+    "code": "N434 / Solenoide 3 (N90 genérico)",
+    "type": "Solenoide de conmutación de pilotaje hidráulico",
+    "resistance": "4.8 ± 0.3 Ω",
+    "signal": "12 V de mando directo",
+    "pressure": "4.8 bar en cámara de actuación",
+    "location": "Módulo de correderas de horquilla J743",
+    "function": "Enclava mecánicamente el piñón de 5.ª (+8.5 mm) o 7.ª (-8.5 mm) en el eje secundario impar.",
+    "dtc": "P17E2: Accionador de marcha 3, no se detecta posición de neutro"
+  },
+  "N438": {
+    "title": "Solenoide de Accionamiento Horquilla 4-6",
+    "code": "N438 / Solenoide 4 (N91 genérico)",
+    "type": "Solenoide de conmutación de pilotaje hidráulico",
+    "resistance": "4.8 ± 0.3 Ω",
+    "signal": "12 V de mando directo",
+    "pressure": "4.8 bar en cámara de actuación",
+    "location": "Módulo de correderas de horquilla J743",
+    "function": "Mueve el manguito sincronizador de 4.ª (+8.5 mm) o 6.ª (-8.5 mm) en el eje secundario par.",
+    "dtc": "P17E3: Accionador de marcha 4, bloqueo mecánico"
+  },
+  "K1": {
+    "title": "Conjunto Multidisco de Fricción K1 (Exterior)",
+    "code": "Embrague K1 - Eje Macizo (Marchas 1, 3, 5, 7)",
+    "type": "Embrague húmedo multidisco de 6 placas de fricción orgánicas",
+    "resistance": "Accionamiento hidráulico por émbolo anular",
+    "signal": "Presión analógica G193 (0 - 10 bar)",
+    "pressure": "9.2 bar de apriete nominal / Muelle de retroceso Belleville",
+    "location": "Carcasa delantera de embrague, accionado por el volante bimasa",
+    "function": "Transmite el par hacia el Árbol Primario 1 (eje macizo central). Es el embrague de mayor diámetro exterior para soportar el esfuerzo térmico y mecánico en las arrancadas desde parado.",
+    "dtc": "P1775: Sensor 1 de presión hidráulica (G193), señal implausible"
+  },
+  "K2": {
+    "title": "Conjunto Multidisco de Fricción K2 (Interior)",
+    "code": "Embrague K2 - Eje Hueco (Marchas 2, 4, 6 y Reversa)",
+    "type": "Embrague húmedo multidisco de 5 placas concéntricas",
+    "resistance": "Accionamiento hidráulico por émbolo anular",
+    "signal": "Presión analógica G194 (0 - 10 bar)",
+    "pressure": "9.2 bar de apriete nominal / Muelle de diafragma",
+    "location": "Interior concéntrico del conjunto K1",
+    "function": "Transmite el par hacia el Árbol Primario 2 (eje exterior hueco). Su disposición concéntrica permite que una caja de cambios de 7 marchas longitudinal sea extremadamente compacta.",
+    "dtc": "P1776: Sensor 2 de presión hidráulica (G194), señal implausible"
+  },
+  "PUMP": {
+    "title": "Bomba Hidráulica de Aceite ATF de Engranajes",
+    "code": "Bomba de Caudal Volumétrico Mecánica",
+    "type": "Bomba interna de engranajes arrastrada por el eje del motor",
+    "resistance": "Accionamiento mecánico directo continuo",
+    "signal": "Caudal proporcional al régimen de giro del motor (RPM)",
+    "pressure": "Genera hasta 20 bar de caudal hacia la válvula N472",
+    "location": "Cárter de fluido ATF inferior de la transmisión DL501",
+    "function": "Aspira el fluido ATF (G 052 529 A2) a través del filtro de succión e impulsa el caudal necesario para presurizar el acumulador, pilotar las válvulas y enfriar los embragues.",
+    "dtc": "P0841: Presión de fluido de transmisión fuera de rango de trabajo"
+  }
+};
 
 // Estado global de simulación
 const AppState = {
   mode: 'D',               // 'P', 'R', 'N', 'D', 'M'
   activeGear: 'D1',        // 'P', 'R', 'N', 'D1'..'D7', 'M1'..'M7'
   speed: 0,                // km/h (0 a 220)
-  targetSpeed: 0,          // km/h para aceleración suave
   throttle: 35,            // % TPS (0 a 100)
   rpm: 800,                // RPM del motor
   atfTemp: 84.5,           // °C
   autoCruiseInterval: null,// Intervalo de aceleración automática
   isShifting: false,       // Indicador de cruce de embragues
-  shiftMessageTimer: null
+  shiftMessageTimer: null,
+  selectedComponent: 'N472'
 };
 
 // Coordenadas base en SVG para los émbolos de las horquillas
@@ -2057,11 +2283,12 @@ const PISTON_BASE_X = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('[S-tronic DL501] Iniciando simulador interactivo - Tema Claro...');
+  console.log('[S-tronic DL501] Iniciando simulador de ingeniería - Modo reactivo...');
   setMode('D');
+  inspectComponent('N472');
   updateDrivingPhysics();
   
-  // Pequeña oscilación térmica del ATF
+  // Oscilación térmica del fluido ATF
   setInterval(() => {
     AppState.atfTemp = (84.0 + Math.random() * 1.2).toFixed(1);
     const el = document.getElementById('val-temp');
@@ -2080,14 +2307,14 @@ function setMode(newMode) {
     const btn = document.getElementById('btn-mode-' + m);
     if (!btn) return;
     if (m === newMode) {
-      btn.className = 'py-3 px-4 rounded-xl font-bold font-mono text-base shadow-md transition-all flex flex-col items-center justify-center ' +
+      btn.className = 'py-3 px-3 rounded-xl font-bold font-mono text-base shadow-md transition-all flex flex-col items-center justify-center ' +
         (m === 'P' ? 'bg-amber-500 text-white shadow-amber-200' :
          m === 'R' ? 'bg-purple-600 text-white shadow-purple-200' :
          m === 'N' ? 'bg-slate-600 text-white shadow-slate-200' :
-         m === 'D' ? 'bg-[#BA0C2F] text-white shadow-red-200' :
+         m === 'D' ? 'bg-[#BA0C2F] text-white shadow-red-200 ring-2 ring-red-400' :
          'bg-blue-600 text-white shadow-blue-200');
     } else {
-      btn.className = 'py-3 px-4 rounded-xl font-bold font-mono text-base bg-white text-slate-700 border border-slate-200 hover:border-slate-400 transition-all flex flex-col items-center justify-center';
+      btn.className = 'py-3 px-3 rounded-xl font-bold font-mono text-base bg-white text-slate-700 border border-slate-200 hover:border-slate-400 transition-all flex flex-col items-center justify-center';
     }
   });
 
@@ -2097,51 +2324,36 @@ function setMode(newMode) {
     manualBar.style.display = (newMode === 'M') ? 'flex' : 'none';
   }
 
-  // Si entra a P o N, detener el coche
+  // En P o N, detener el vehículo
   if (newMode === 'P' || newMode === 'N') {
     stopAutoCruise();
     AppState.speed = 0;
     const speedSlider = document.getElementById('slider-speed');
     if (speedSlider) speedSlider.value = 0;
-    evaluateGearForSpeed();
+    AppState.activeGear = newMode;
+    renderGearState(GEAR_DATA[newMode]);
   } else if (newMode === 'R') {
     stopAutoCruise();
     AppState.activeGear = 'R';
     renderGearState(GEAR_DATA['R']);
   } else if (newMode === 'D') {
-    evaluateGearForSpeed();
+    evaluateGearForSpeed(true);
   } else if (newMode === 'M') {
     selectManualGear(1);
   }
 
   updateDrivingPhysics();
-  logDiagnostic(`Modo de transmisión cambiado a: [${newMode}]`);
+  logDiagnostic(`Palanca de cambios colocada en modo: [${newMode}]`);
 }
 
 /**
- * En modo Drive (D), calcula automáticamente la marcha según la velocidad
+ * En modo Drive (D), calcula y conmuta automáticamente la marcha según la velocidad
  */
-function evaluateGearForSpeed() {
-  if (AppState.mode === 'P') {
-    AppState.activeGear = 'P';
-    renderGearState(GEAR_DATA['P']);
+function evaluateGearForSpeed(forceUpdate = false) {
+  if (AppState.mode === 'P' || AppState.mode === 'N' || AppState.mode === 'R' || AppState.mode === 'M') {
     return;
-  }
-  if (AppState.mode === 'N') {
-    AppState.activeGear = 'N';
-    renderGearState(GEAR_DATA['N']);
-    return;
-  }
-  if (AppState.mode === 'R') {
-    AppState.activeGear = 'R';
-    renderGearState(GEAR_DATA['R']);
-    return;
-  }
-  if (AppState.mode === 'M') {
-    return; // En manual el usuario decide
   }
 
-  // Modo D: Lógica automática del S-tronic de 7 velocidades
   const v = AppState.speed;
   let targetGearNum = 1;
 
@@ -2156,16 +2368,13 @@ function evaluateGearForSpeed() {
   const newActiveGear = 'D' + targetGearNum;
   const previousGear = AppState.activeGear;
 
-  if (newActiveGear !== previousGear) {
-    // ¡Ocurrió un cambio de marcha!
+  if (newActiveGear !== previousGear || forceUpdate) {
+    AppState.activeGear = newActiveGear;
     triggerClutchCrossShift(previousGear, newActiveGear, targetGearNum);
   } else {
-    // Misma marcha, solo actualizar estado
     const mKey = 'M' + targetGearNum;
     renderGearState(GEAR_DATA[mKey] || GEAR_DATA['D'], targetGearNum);
   }
-
-  AppState.activeGear = newActiveGear;
 }
 
 /**
@@ -2185,8 +2394,8 @@ function triggerClutchCrossShift(fromGear, toGear, targetNum) {
     const engaging = toIsOdd ? 'K1 (Exterior - Impares)' : 'K2 (Interior - Pares)';
     
     text.innerHTML = `<strong>CRUCE DE EMBRAGUES EN PROGRESO (${fromGear} ➜ ${toGear}):</strong> ` +
-      `Desembragando <span class="text-slate-700">${disengaging}</span> a la par que embraga ` +
-      `<span class="text-[#BA0C2F] font-bold">${engaging}</span>. ¡Tiempo de trasvase: 35 ms sin corte de tracción!`;
+      `Desembragando <span class="text-slate-700 font-semibold">${disengaging}</span> simultáneamente mientras embraga ` +
+      `<span class="text-[#BA0C2F] font-bold">${engaging}</span>. ¡Tiempo de solapamiento hidráulico: 35 ms sin corte de par!`;
     
     banner.classList.remove('hidden');
     banner.classList.add('flex');
@@ -2201,8 +2410,11 @@ function triggerClutchCrossShift(fromGear, toGear, targetNum) {
 
   // Cargar estado de la marcha de destino
   const mKey = 'M' + targetNum;
-  renderGearState(GEAR_DATA[mKey] || GEAR_DATA['D'], targetNum);
-  logDiagnostic(`S-tronic cambio efectuado: [${fromGear}] ➜ [${toGear}] (Relación ${clean_gears[mKey]?.ratio || 1}:1)`);
+  const gearObj = GEAR_DATA[mKey] || GEAR_DATA['D'];
+  renderGearState(gearObj, targetNum);
+  
+  const currentRatio = gearObj.ratio || 1.0;
+  logDiagnostic(`S-tronic cambio efectuado: [${fromGear}] ➜ [${toGear}] (Relación ${currentRatio}:1)`);
 }
 
 /**
@@ -2212,7 +2424,6 @@ function selectManualGear(num) {
   AppState.mode = 'M';
   AppState.activeGear = 'M' + num;
   
-  // Actualizar botones M1-M7
   for (let i = 1; i <= 7; i++) {
     const b = document.getElementById('btn-m-' + i);
     if (!b) continue;
@@ -2230,7 +2441,7 @@ function selectManualGear(num) {
 }
 
 /**
- * Renderiza el estado completo en la interfaz (Tema Claro)
+ * Renderiza el estado completo en la interfaz (Tema Claro de Ingeniería)
  */
 function renderGearState(data, gearNum = null) {
   if (!data) return;
@@ -2276,7 +2487,7 @@ function renderGearState(data, gearNum = null) {
   updateForkBox('fork-status-5-7', forks['5-7']);
   updateForkBox('fork-status-4-6', forks['4-6']);
 
-  // 4. Actualizar Esquema SVG Claro
+  // 4. Actualizar Esquema SVG Claro e Hidráulica
   updateLightSVG(data);
 
   // 5. Tabla de Solenoides
@@ -2288,12 +2499,12 @@ function renderGearState(data, gearNum = null) {
     list.innerHTML = '';
     data.fluid_flow_steps.forEach((step, idx) => {
       const li = document.createElement('li');
-      li.className = 'flex items-start gap-2.5 text-xs text-slate-700 bg-slate-50 p-2 rounded-lg border border-slate-200';
+      li.className = 'flex items-start gap-2.5 text-xs text-slate-700 bg-slate-50 p-2.5 rounded-xl border border-slate-200';
       li.innerHTML = `
         <span class="w-5 h-5 rounded-full bg-[#BA0C2F] text-white flex items-center justify-center font-bold text-[10px] shrink-0">
           ${idx + 1}
         </span>
-        <span class="leading-relaxed">${step}</span>
+        <span class="leading-relaxed font-sans">${step}</span>
       `;
       list.appendChild(li);
     });
@@ -2321,7 +2532,7 @@ function updateForkBox(elId, forkData) {
 }
 
 /**
- * Actualiza el diagrama SVG de alta visibilidad (Fondo claro)
+ * Actualiza el diagrama SVG de alta visibilidad técnica y flujo de fluido
  */
 function updateLightSVG(data) {
   const solenoids = data.solenoids;
@@ -2330,7 +2541,7 @@ function updateLightSVG(data) {
   for (const [code, sol] of Object.entries(solenoids)) {
     const rect = document.getElementById('svg-rect-' + code);
     const textPress = document.getElementById('svg-val-' + code);
-    const textTitle = document.getElementById('svg-title-' + code);
+    const spool = document.getElementById('svg-spool-' + code);
 
     if (rect) {
       if (sol.state === 'ACTIVE' || sol.pressure_bar > 4.0 || sol.pwm_pct > 50) {
@@ -2348,32 +2559,52 @@ function updateLightSVG(data) {
       }
     }
 
+    // Corredera interna deslizante de la válvula
+    if (spool) {
+      if (sol.state === 'ACTIVE' || sol.pressure_bar > 4.0) {
+        spool.setAttribute('transform', 'translate(8, 0)');
+        spool.setAttribute('fill', '#DC2626');
+      } else if (sol.state === 'Preselected') {
+        spool.setAttribute('transform', 'translate(4, 0)');
+        spool.setAttribute('fill', '#D97706');
+      } else {
+        spool.setAttribute('transform', 'translate(0, 0)');
+        spool.setAttribute('fill', '#94A3B8');
+      }
+    }
+
     if (textPress) {
       textPress.textContent = `${sol.pressure_bar.toFixed(1)} bar`;
       textPress.setAttribute('fill', sol.pressure_bar > 0 ? '#991B1B' : '#64748B');
     }
   }
 
-  // Embragues en SVG
+  // Embragues concéntricos K1 y K2 en SVG
   const clutchK1 = document.getElementById('svg-clutch-k1');
+  const discsK1 = document.getElementById('svg-discs-k1');
   if (clutchK1) {
     if (data.clutches.K1.engagement_pct > 0) {
       clutchK1.setAttribute('fill', '#FEE2E2');
       clutchK1.setAttribute('stroke', '#DC2626');
+      if (discsK1) discsK1.setAttribute('stroke', '#DC2626');
     } else {
       clutchK1.setAttribute('fill', '#F8FAFC');
       clutchK1.setAttribute('stroke', '#E2E8F0');
+      if (discsK1) discsK1.setAttribute('stroke', '#CBD5E1');
     }
   }
 
   const clutchK2 = document.getElementById('svg-clutch-k2');
+  const discsK2 = document.getElementById('svg-discs-k2');
   if (clutchK2) {
     if (data.clutches.K2.engagement_pct > 0) {
       clutchK2.setAttribute('fill', '#DBEAFE');
       clutchK2.setAttribute('stroke', '#2563EB');
+      if (discsK2) discsK2.setAttribute('stroke', '#2563EB');
     } else {
       clutchK2.setAttribute('fill', '#F8FAFC');
       clutchK2.setAttribute('stroke', '#E2E8F0');
+      if (discsK2) discsK2.setAttribute('stroke', '#CBD5E1');
     }
   }
 
@@ -2384,9 +2615,15 @@ function updateLightSVG(data) {
   updatePistonSVG('5-7', forks['5-7']?.position_mm);
   updatePistonSVG('4-6', forks['4-6']?.position_mm);
 
-  // Tuberías hidráulicas con flujo
-  updatePipeFlow('pipe-k1', data.clutches.K1.engagement_pct > 0);
-  updatePipeFlow('pipe-k2', data.clutches.K2.engagement_pct > 0);
+  // Tuberías hidráulicas con flujo dinámico
+  updatePipeFlow('pipe-k1', data.clutches.K1.engagement_pct > 0, '#DC2626');
+  updatePipeFlow('pipe-k2', data.clutches.K2.engagement_pct > 0, '#2563EB');
+  
+  // Cañerías a horquillas
+  updatePipeFlow('pipe-fork-1-3', forks['1-3']?.status === 'Engaged', '#DC2626', forks['1-3']?.status === 'Preselected');
+  updatePipeFlow('pipe-fork-2-R', forks['2-R']?.status === 'Engaged', '#DC2626', forks['2-R']?.status === 'Preselected');
+  updatePipeFlow('pipe-fork-5-7', forks['5-7']?.status === 'Engaged', '#DC2626', forks['5-7']?.status === 'Preselected');
+  updatePipeFlow('pipe-fork-4-6', forks['4-6']?.status === 'Engaged', '#DC2626', forks['4-6']?.status === 'Preselected');
 }
 
 function updatePistonSVG(forkKey, positionMm) {
@@ -2404,17 +2641,22 @@ function updatePistonSVG(forkKey, positionMm) {
   }
 }
 
-function updatePipeFlow(pipeId, isActive) {
+function updatePipeFlow(pipeId, isActive, activeColor = '#DC2626', isPreselected = false) {
   const pipe = document.getElementById(pipeId);
   if (!pipe) return;
   if (isActive) {
-    pipe.setAttribute('stroke', '#DC2626');
+    pipe.setAttribute('stroke', activeColor);
     pipe.setAttribute('stroke-width', '3');
     pipe.setAttribute('stroke-dasharray', '6, 3');
     pipe.classList.add('animate-flow');
+  } else if (isPreselected) {
+    pipe.setAttribute('stroke', '#D97706');
+    pipe.setAttribute('stroke-width', '2.5');
+    pipe.setAttribute('stroke-dasharray', '5, 3');
+    pipe.classList.add('animate-flow');
   } else {
     pipe.setAttribute('stroke', '#E2E8F0');
-    pipe.setAttribute('stroke-width', '2');
+    pipe.setAttribute('stroke-width', '1.5');
     pipe.removeAttribute('stroke-dasharray');
     pipe.classList.remove('animate-flow');
   }
@@ -2428,7 +2670,8 @@ function updateSolenoidTable(solenoids) {
   for (const [code, sol] of Object.entries(solenoids)) {
     const spec = SOLENOID_SPECS[code] || {};
     const tr = document.createElement('tr');
-    tr.className = 'border-b border-slate-200 hover:bg-slate-50 transition-colors text-xs font-mono';
+    tr.className = 'border-b border-slate-200 hover:bg-slate-50 transition-colors text-xs font-mono cursor-pointer';
+    tr.onclick = () => inspectComponent(code);
     
     let badge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500">INACTIVO</span>';
     if (sol.state === 'ACTIVE') {
@@ -2452,6 +2695,35 @@ function updateSolenoidTable(solenoids) {
 }
 
 /**
+ * Inspector interactivo de componentes de ingeniería
+ */
+function inspectComponent(componentId) {
+  AppState.selectedComponent = componentId;
+  const dossier = COMPONENT_DOSSIER[componentId];
+  if (!dossier) return;
+
+  const titleEl = document.getElementById('dossier-title');
+  const codeEl = document.getElementById('dossier-code');
+  const typeEl = document.getElementById('dossier-type');
+  const resistEl = document.getElementById('dossier-resist');
+  const signalEl = document.getElementById('dossier-signal');
+  const pressEl = document.getElementById('dossier-press');
+  const locEl = document.getElementById('dossier-loc');
+  const funcEl = document.getElementById('dossier-func');
+  const dtcEl = document.getElementById('dossier-dtc');
+
+  if (titleEl) titleEl.textContent = dossier.title;
+  if (codeEl) codeEl.textContent = dossier.code;
+  if (typeEl) typeEl.textContent = dossier.type;
+  if (resistEl) resistEl.textContent = dossier.resistance;
+  if (signalEl) signalEl.textContent = dossier.signal;
+  if (pressEl) pressEl.textContent = dossier.pressure;
+  if (locEl) locEl.textContent = dossier.location;
+  if (funcEl) funcEl.textContent = dossier.function;
+  if (dtcEl) dtcEl.textContent = dossier.dtc;
+}
+
+/**
  * Dinámica vehicular y cálculo de RPM / Par
  */
 function onSliderSpeedInput(val) {
@@ -2468,18 +2740,15 @@ function onSliderThrottleInput(val) {
 }
 
 function updateDrivingPhysics() {
-  // Actualizar etiqueta velocidad
   const lblSpeed = document.getElementById('lbl-speed-val');
   if (lblSpeed) lblSpeed.textContent = AppState.speed.toFixed(1) + ' km/h';
 
-  // Buscar relación de transmisión activa
   const activeKey = AppState.activeGear.startsWith('D') ? 'M' + AppState.activeGear.replace('D', '') : AppState.activeGear;
-  const currentRatio = (AppState.mode === 'P' || AppState.mode === 'N') ? 0 : (clean_gears[activeKey]?.ratio || 3.692);
+  const currentRatio = (AppState.mode === 'P' || AppState.mode === 'N') ? 0 : (GEAR_DATA[activeKey]?.ratio || 3.692);
   const finalDrive = 4.444; // Grupo final Audi Q5
   const perimeterM = 2.228; // Neumáticos 235/60 R18
 
   if (currentRatio === 0) {
-    // Ralentí
     AppState.rpm = Math.round(800 + (AppState.throttle * 25));
   } else {
     const wheelRpm = (AppState.speed * 1000.0) / (60.0 * perimeterM);
@@ -2488,18 +2757,16 @@ function updateDrivingPhysics() {
     AppState.rpm = Math.round(Math.max(800, Math.min(6500, rawRpm)));
   }
 
-  // Actualizar display de RPM
   const rpmDisplay = document.getElementById('val-rpm');
   if (rpmDisplay) {
     rpmDisplay.textContent = AppState.rpm;
     if (AppState.rpm > 5500) {
-      rpmDisplay.className = 'text-3xl font-black font-mono text-[#BA0C2F] animate-pulse';
+      rpmDisplay.className = 'text-base font-extrabold text-[#BA0C2F] animate-pulse';
     } else {
-      rpmDisplay.className = 'text-3xl font-black font-mono text-slate-900';
+      rpmDisplay.className = 'text-base font-extrabold text-slate-900';
     }
   }
 
-  // Cálculo de par motor (Audi EA888 2.0 TFSI máx 350 Nm)
   const baseTorqueEngine = 350.0 * (AppState.throttle / 100.0);
   const totalRatio = (currentRatio * finalDrive);
   const wheelTorque = (currentRatio === 0) ? 0 : Math.round(baseTorqueEngine * totalRatio * 0.88);
@@ -2507,7 +2774,6 @@ function updateDrivingPhysics() {
   const tqVal = document.getElementById('val-wheel-torque');
   if (tqVal) tqVal.textContent = wheelTorque.toLocaleString() + ' Nm';
 
-  // Reparto Torsen C (40% delantero, 60% trasero)
   const frontTq = Math.round(wheelTorque * 0.40);
   const rearTq = Math.round(wheelTorque * 0.60);
   const fEl = document.getElementById('val-torsen-front');
@@ -2515,41 +2781,31 @@ function updateDrivingPhysics() {
   if (fEl) fEl.textContent = frontTq.toLocaleString() + ' Nm (40%)';
   if (rEl) rEl.textContent = rearTq.toLocaleString() + ' Nm (60%)';
 
-  // Presión EPC principal en N472 (5 a 16 bar)
   const epcPress = 5.0 + (AppState.throttle / 100.0) * 10.5;
   const epcEl = document.getElementById('val-line-pressure');
   if (epcEl) epcEl.textContent = epcPress.toFixed(1) + ' bar';
 }
 
-/**
- * Control: Pisar Acelerador
- */
 function pedalAccelerate() {
   if (AppState.mode === 'P' || AppState.mode === 'N') {
     logDiagnostic('Advertencia: Acelerando en vacío (P/N). Tracción desacoplada.');
     return;
   }
-  AppState.speed = Math.min(200, AppState.speed + 10);
+  AppState.speed = Math.min(200, AppState.speed + 12);
   const slider = document.getElementById('slider-speed');
   if (slider) slider.value = AppState.speed;
   updateDrivingPhysics();
   evaluateGearForSpeed();
 }
 
-/**
- * Control: Frenar
- */
 function pedalBrake() {
-  AppState.speed = Math.max(0, AppState.speed - 12);
+  AppState.speed = Math.max(0, AppState.speed - 15);
   const slider = document.getElementById('slider-speed');
   if (slider) slider.value = AppState.speed;
   updateDrivingPhysics();
   evaluateGearForSpeed();
 }
 
-/**
- * Simulación de Conducción Automática (Acelera suavemente de 0 a 140 km/h)
- */
 function toggleAutoCruise() {
   const btn = document.getElementById('btn-auto-cruise');
   if (AppState.autoCruiseInterval) {
@@ -2558,6 +2814,8 @@ function toggleAutoCruise() {
   } else {
     setMode('D');
     AppState.speed = 0;
+    const slider = document.getElementById('slider-speed');
+    if (slider) slider.value = 0;
     if (btn) btn.innerHTML = '<span class="animate-spin">⚙</span> <span>Detener Conducción Automática</span>';
     
     logDiagnostic('>> INICIANDO CICLO AUTOMÁTICO DE ACELERACIÓN S-TRONIC (0 A 140 KM/H)...');
@@ -2566,15 +2824,14 @@ function toggleAutoCruise() {
       if (AppState.speed >= 140) {
         stopAutoCruise();
         if (btn) btn.innerHTML = '<span>▶</span> <span>Reiniciar Conducción Automática</span>';
-        logDiagnostic('>> Ciclo de prueba completado en 7.ª marcha. Velocidad máxima sostenida.');
+        logDiagnostic('>> Ciclo completado en 7.ª marcha. Régimen de crucero óptimo.');
         return;
       }
-      AppState.speed += 2.0;
-      const slider = document.getElementById('slider-speed');
+      AppState.speed += 2.5;
       if (slider) slider.value = AppState.speed;
       updateDrivingPhysics();
       evaluateGearForSpeed();
-    }, 120);
+    }, 130);
   }
 }
 
@@ -2598,7 +2855,7 @@ function logDiagnostic(msg) {
 }
 
 function switchTab(tabId) {
-  ['tab-solenoids', 'tab-fluid', 'tab-curves', 'tab-diag'].forEach(t => {
+  ['tab-solenoids', 'tab-fluid', 'tab-curves', 'tab-diag', 'tab-inspector'].forEach(t => {
     const content = document.getElementById('content-' + t);
     const btn = document.getElementById('btn-' + t);
     if (!content || !btn) return;
