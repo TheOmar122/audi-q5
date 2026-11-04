@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulador de Transmisión S-tronic DL501 (0B5) — Audi Q5 2.0 TFSI (2012)</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            audi: {
+              red: '#BA0C2F',
+              redHover: '#8C0615',
+              dark: '#080C14',
+              card: '#0F172A',
+              cardLight: '#1E293B',
+              border: '#334155',
+              accent: '#0284C7',
+              cyan: '#38BDF8',
+              green: '#10B981',
+              amber: '#F59E0B'
+            }
+          },
+          fontFamily: {
+            mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* Estilos personalizados para animaciones y fluidos hidráulicos */
+    body {
+      background-color: #06090F;
+      color: #E2E8F0;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* Animación de flujo en tuberías SVG */
+    @keyframes dashFlow {
+      to {
+        stroke-dashoffset: -40;
+      }
+    }
+
+    .fluid-flow-active {
+      stroke-dasharray: 8, 4;
+      animation: dashFlow 1.2s linear infinite;
+    }
+
+    .fluid-flow-fast {
+      stroke-dasharray: 6, 3;
+      animation: dashFlow 0.6s linear infinite;
+    }
+
+    /* Animación pulso PWM */
+    @keyframes pwmPulse {
+      0%, 100% { opacity: 0.85; filter: drop-shadow(0 0 4px #BA0C2F); }
+      50% { opacity: 1; filter: drop-shadow(0 0 12px #EF4444); }
+    }
+
+    .pulse-pwm {
+      animation: pwmPulse 1s ease-in-out infinite;
+    }
+
+    /* Brillos de estado */
+    .glow-green {
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+    }
+    .glow-red {
+      box-shadow: 0 0 15px rgba(186, 12, 47, 0.4);
+    }
+    .glow-cyan {
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+    }
+
+    /* Scrollbars elegantes */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0B0F19;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #BA0C2F;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-audi-red selection:text-white">
+
+  <!-- ======================================================== -->
+  <!-- BARRA SUPERIOR: ENCABEZADO CORPORATIVO AUDI SPORT        -->
+  <!-- ======================================================== -->
+  <header class="bg-audi-dark/95 border-b border-audi-border sticky top-0 z-50 backdrop-blur px-4 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-4 shadow-xl">
+    <div class="flex items-center gap-3">
+      <!-- Logo o Distintivo Audi -->
+      <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-red-600 to-audi-red text-white font-black text-xl shadow-md border border-red-500/30">
+        Q5
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-lg lg:text-xl font-extrabold tracking-tight text-white flex items-center gap-2">
+            AUDI Q5 2.0 TFSI <span class="text-audi-red">S-TRONIC</span>
+          </h1>
+          <span class="text-[10px] font-mono font-bold bg-audi-red/20 text-audi-red border border-audi-red/40 px-2 py-0.5 rounded-full uppercase">
+            DL501 / 0B5
+          </span>
+          <span class="text-[10px] font-mono bg-slate-800 text-slate-300 border border-slate-700 px-2 py-0.5 rounded-full">
+            AÑO 2012 • 211 CV
+          </span>
+        </div>
+        <p class="text-xs text-slate-400 font-medium">
+          Simulador Mecatrónico Interactivo del Cuerpo de Válvulas, Circuito Hidráulico y Solenoides J743
+        </p>
+      </div>
+    </div>
+
+    <!-- Telemetría Dinámica en Header -->
+    <div class="flex items-center gap-4 text-xs font-mono">
+      <div class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 flex items-center gap-3">
+        <div>
+          <span class="text-slate-500 text-[10px] block">RÉGIMEN MOTOR</span>
+          <span id="hdr-rpm" class="text-sm font-bold text-white">850</span> <span class="text-[10px] text-slate-400">RPM</span>
+        </div>
+        <div class="h-6 w-px bg-slate-800"></div>
+        <div>
+          <span class="text-slate-500 text-[10px] block">VELOCIDAD</span>
+          <span id="hdr-speed" class="text-sm font-bold text-audi-cyan">0.0</span> <span class="text-[10px] text-slate-400">km/h</span>
+        </div>
+        <div class="h-6 w-px bg-slate-800"></div>
+        <div>
+          <span class="text-slate-500 text-[10px] block">TEMP. ATF (G509)</span>
+          <span id="hdr-temp" class="text-sm font-bold text-emerald-400">84.5</span> <span class="text-[10px] text-slate-400">°C</span>
+        </div>
+      </div>
+
+      <button id="btn-run-diag" onclick="runDiagnosticsScan()" class="bg-slate-800 hover:bg-audi-red border border-slate-700 hover:border-red-500 text-white font-sans font-semibold text-xs px-3.5 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-sm">
+        <svg class="w-3.5 h-3.5 text-audi-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <span>Diagnóstico TCU J743</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ======================================================== -->
+  <!-- CONTENEDOR PRINCIPAL DEL SIMULADOR                       -->
+  <!-- ======================================================== -->
+  <main class="flex-1 p-3 lg:p-6 max-w-[1700px] w-full mx-auto grid grid-cols-1 xl:grid-cols-12 gap-5">
+
+    <!-- COLUMNA IZQUIERDA: CONTROLES DE MARCHA Y CINEMÁTICA (4 cols) -->
+    <div class="xl:col-span-4 flex flex-col gap-5">
+      
+      <!-- CARD 1: SELECTOR DE MARCHAS (P, R, N, D & M1-M8) -->
+      <div class="bg-audi-card border border-audi-border rounded-xl p-5 shadow-lg relative overflow-hidden">
+        <div class="absolute -top-12 -right-12 w-32 h-32 bg-audi-red/5 rounded-full blur-2xl pointer-events-none"></div>
+
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-audi-red animate-pulse"></span>
+            <h2 class="font-bold text-sm text-white uppercase tracking-wider">Selector de Modo y Marchas</h2>
+          </div>
+          <span id="current-gear-badge" class="font-mono text-xs font-bold px-2.5 py-1 rounded-md bg-audi-red text-white shadow">
+            MARCHA: D
+          </span>
+        </div>
+
+        <!-- Botones de Modo Automático / Estacionamiento -->
+        <div class="grid grid-cols-4 gap-2.5 mb-4">
+          <button onclick="selectGear('P')" id="btn-gear-P" class="btn-gear py-3 rounded-lg font-mono font-bold text-lg border transition-all duration-150 flex flex-col items-center justify-center bg-slate-900 border-slate-700 hover:border-slate-500 text-slate-300">
+            <span>P</span>
+            <span class="text-[9px] font-sans font-normal text-slate-400">Park</span>
+          </button>
+          <button onclick="selectGear('R')" id="btn-gear-R" class="btn-gear py-3 rounded-lg font-mono font-bold text-lg border transition-all duration-150 flex flex-col items-center justify-center bg-slate-900 border-slate-700 hover:border-slate-500 text-slate-300">
+            <span>R</span>
+            <span class="text-[9px] font-sans font-normal text-slate-400">Reversa</span>
+          </button>
+          <button onclick="selectGear('N')" id="btn-gear-N" class="btn-gear py-3 rounded-lg font-mono font-bold text-lg border transition-all duration-150 flex flex-col items-center justify-center bg-slate-900 border-slate-700 hover:border-slate-500 text-slate-300">
+            <span>N</span>
+            <span class="text-[9px] font-sans font-normal text-slate-400">Neutral</span>
+          </button>
+          <button onclick="selectGear('D')" id="btn-gear-D" class="btn-gear py-3 rounded-lg font-mono font-bold text-lg border transition-all duration-150 flex flex-col items-center justify-center bg-audi-red border-red-500 text-white glow-red">
+            <span>D</span>
+            <span class="text-[9px] font-sans font-normal text-red-200">Drive</span>
+          </button>
+        </div>
+
+        <!-- Botones Modo Manual Secuencial: M1 a M8 -->
+        <div>
+          <div class="flex items-center justify-between text-xs text-slate-400 font-semibold mb-2">
+            <span>MODO MANUAL SECUENCIAL S-TRONIC (TIPTRONIC)</span>
+            <span class="text-[10px] font-mono text-audi-cyan">M1 a M8</span>
+          </div>
+          <div class="grid grid-cols-4 sm:grid-cols-8 gap-1.5">
+            <button onclick="selectGear('M1')" id="btn-gear-M1" class="btn-gear py-2 rounded-lg font-mono font-bold text-xs border bg-slate-900 border-slate-800 hover:border-slate-600 text-slate-300">M1</button>
+            <button onclick="selectGear('M2')" id="btn-gear-M2" class="btn-gear py-2 rounded-lg font-mono font-bold text-xs border bg-slate-900 border-slate-800 hover:border-slate-600 text-slate-300">M2</button>
+            <button onclick="selectGear('M3')" id="btn-gear-M3" class="btn-gear py-2 rounded-lg font-mono font-bold text-xs border bg-slate-900 border-slate-800 hover:border-slate-600 text-slate-300">M3</button>
+            <button onclick="selectGear('M4')" id="btn-gear-M4" class="btn-gear py-2 rounded-lg font-mono font-bold text-xs border bg-slate-900 border-slate-800 hover:border-slate-600 text-slate-300">M4</button>
+            <button onclick="selectGear('M5')" id="btn-gear-M5" class="btn-gear py-2 rounded-lg font-mono font-bold text-xs border bg-slate-900 border-slate-800 hover:border-slate-600 text-slate-300">M5</button>
+            <button onclick="selectGear('M6')" id="btn-gear-M6" class="btn-gear py-2 rounded-lg font-mono font-bold text-xs border bg-slate-900 border-slate-800 hover:border-slate-600 text-slate-300">M6</button>
+            <button onclick="selectGear('M7')" id="btn-gear-M7" class="btn-gear py-2 rounded-lg font-mono font-bold text-xs border bg-slate-900 border-slate-800 hover:border-slate-600 text-slate-300">M7</button>
+            <button onclick="selectGear('M8')" id="btn-gear-M8" class="btn-gear py-2 rounded-lg font-mono font-bold text-xs border bg-slate-900 border-slate-800 hover:border-slate-600 text-slate-300" title="Simulación Overdrive crucero eco">M8</button>
+          </div>
+        </div>
+
+        <!-- Controles Deslizantes Dinámicos: Velocidad y Acelerador (TPS) -->
+        <div class="mt-5 pt-4 border-t border-slate-800 space-y-4">
+          <!-- Velocidad -->
+          <div>
+            <div class="flex justify-between items-center text-xs mb-1">
+              <span class="text-slate-400 font-medium">Velocidad del Vehículo:</span>
+              <span id="slider-speed-val" class="font-mono font-bold text-audi-cyan">45 km/h</span>
+            </div>
+            <input type="range" id="input-speed" min="0" max="220" value="45" step="1" oninput="onSpeedChange(this.value)" class="w-full accent-audi-red bg-slate-800 rounded-lg h-2 cursor-pointer">
+            <div class="flex justify-between text-[10px] text-slate-500 font-mono mt-0.5">
+              <span>0 km/h</span>
+              <span>100 km/h</span>
+              <span>220 km/h</span>
+            </div>
+          </div>
+
+          <!-- Acelerador (TPS %) -->
+          <div>
+            <div class="flex justify-between items-center text-xs mb-1">
+              <span class="text-slate-400 font-medium">Posición Pedal Acelerador (TPS):</span>
+              <span id="slider-throttle-val" class="font-mono font-bold text-audi-amber">35 %</span>
+            </div>
+            <input type="range" id="input-throttle" min="0" max="100" value="35" step="1" oninput="onThrottleChange(this.value)" class="w-full accent-audi-amber bg-slate-800 rounded-lg h-2 cursor-pointer">
+            <div class="flex justify-between text-[10px] text-slate-500 font-mono mt-0.5">
+              <span>0% (Ralentí)</span>
+              <span>50% (Carga media)</span>
+              <span>100% (WOT plena carga)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Métricas Dinámicas de Tracción -->
+        <div class="mt-4 grid grid-cols-2 gap-2 text-xs font-mono">
+          <div class="bg-slate-900/90 border border-slate-800 rounded-lg p-2.5">
+            <span class="text-[10px] text-slate-400 block">DESMULTIPLICACIÓN (itot)</span>
+            <span id="metric-ratio" class="text-sm font-bold text-white">16.407:1</span>
+          </div>
+          <div class="bg-slate-900/90 border border-slate-800 rounded-lg p-2.5">
+            <span class="text-[10px] text-slate-400 block">PAR A LAS RUEDAS</span>
+            <span id="metric-torque" class="text-sm font-bold text-emerald-400">1,240 Nm</span>
+          </div>
+          <div class="bg-slate-900/90 border border-slate-800 rounded-lg p-2.5">
+            <span class="text-[10px] text-slate-400 block">REPARTO TORSEN DELANTERO (40%)</span>
+            <span id="metric-front-tq" class="text-sm font-bold text-audi-cyan">496 Nm</span>
+          </div>
+          <div class="bg-slate-900/90 border border-slate-800 rounded-lg p-2.5">
+            <span class="text-[10px] text-slate-400 block">REPARTO TORSEN TRASERO (60%)</span>
+            <span id="metric-rear-tq" class="text-sm font-bold text-audi-red">744 Nm</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 2: ESTADO CINEMÁTICO DE EMBRAGUES Y HORQUILLAS -->
+      <div class="bg-audi-card border border-audi-border rounded-xl p-5 shadow-lg">
+        <h3 class="font-bold text-sm text-white uppercase tracking-wider border-b border-slate-800 pb-2 mb-3 flex items-center justify-between">
+          <span>Acoplamiento de Embragues K1 / K2</span>
+          <span class="text-[10px] font-mono text-slate-400">Wet Multi-Plate</span>
+        </h3>
+
+        <!-- Embrague K1 (Impares) -->
+        <div class="mb-3.5">
+          <div class="flex justify-between items-center text-xs mb-1">
+            <span class="font-semibold text-slate-300">Embrague K1 (Exterior - Impares 1, 3, 5, 7)</span>
+            <span id="k1-pct-label" class="font-mono font-bold text-audi-red">100 % (CERRADO)</span>
+          </div>
+          <div class="w-full bg-slate-900 rounded-full h-2.5 overflow-hidden border border-slate-800">
+            <div id="k1-bar" class="bg-audi-red h-full rounded-full transition-all duration-300" style="width: 100%;"></div>
+          </div>
+          <div class="flex justify-between text-[10px] font-mono text-slate-500 mt-1">
+            <span>Presión G193: <strong id="k1-press-label" class="text-slate-300">9.20 bar</strong></span>
+            <span>Árbol Primario 1 (Macizo)</span>
+          </div>
+        </div>
+
+        <!-- Embrague K2 (Pares y Reversa) -->
+        <div class="mb-4">
+          <div class="flex justify-between items-center text-xs mb-1">
+            <span class="font-semibold text-slate-300">Embrague K2 (Interior - Pares 2, 4, 6, R)</span>
+            <span id="k2-pct-label" class="font-mono font-bold text-slate-500">0 % (ABIERTO)</span>
+          </div>
+          <div class="w-full bg-slate-900 rounded-full h-2.5 overflow-hidden border border-slate-800">
+            <div id="k2-bar" class="bg-audi-cyan h-full rounded-full transition-all duration-300" style="width: 0%;"></div>
+          </div>
+          <div class="flex justify-between text-[10px] font-mono text-slate-500 mt-1">
+            <span>Presión G194: <strong id="k2-press-label" class="text-slate-300">0.00 bar</strong></span>
+            <span>Árbol Primario 2 (Hueco)</span>
+          </div>
+        </div>
+
+        <!-- Estado de Horquillas Selectoras (Hall G487 - G490) -->
+        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 border-t border-slate-800 pt-3">
+          Posición de Horquillas Selectoras (Sensores Hall)
+        </h4>
+        <div class="grid grid-cols-2 gap-2 text-[11px] font-mono">
+          <div class="bg-slate-900/80 p-2 rounded border border-slate-800 flex justify-between">
+            <span class="text-slate-400">Horquilla 1-3 (G487):</span>
+            <span id="fork-1-3" class="font-bold text-emerald-400">+8.5 mm</span>
+          </div>
+          <div class="bg-slate-900/80 p-2 rounded border border-slate-800 flex justify-between">
+            <span class="text-slate-400">Horquilla 2-R (G489):</span>
+            <span id="fork-2-R" class="font-bold text-audi-amber">+8.5 mm (Pre)</span>
+          </div>
+          <div class="bg-slate-900/80 p-2 rounded border border-slate-800 flex justify-between">
+            <span class="text-slate-400">Horquilla 5-7 (G488):</span>
+            <span id="fork-5-7" class="font-bold text-slate-500">0.0 mm (N)</span>
+          </div>
+          <div class="bg-slate-900/80 p-2 rounded border border-slate-800 flex justify-between">
+            <span class="text-slate-400">Horquilla 4-6 (G490):</span>
+            <span id="fork-4-6" class="font-bold text-slate-500">0.0 mm (N)</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- COLUMNA DERECHA: DIAGRAMA HIDRÁULICO Y TABLA DE SOLENOIDES (8 cols) -->
+    <div class="xl:col-span-8 flex flex-col gap-5">
+      
+      <!-- CARD 3: DIAGRAMA ESQUEMÁTICO DEL CUERPO DE VÁLVULAS Y CIRCUITO HIDRÁULICO -->
+      <div class="bg-audi-card border border-audi-border rounded-xl p-5 shadow-lg flex flex-col">
+        <div class="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 mb-3 gap-2">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-audi-accent animate-ping"></span>
+            <h2 class="font-bold text-sm text-white uppercase tracking-wider">
+              Esquema Electrohidráulico del Cuerpo de Válvulas (Mechatronic J743)
+            </h2>
+          </div>
+          <div class="flex items-center gap-4 text-xs font-mono">
+            <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-red-600 inline-block"></span> <span>Activo / Presión Alta</span></div>
+            <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-amber-500 inline-block"></span> <span>Preselección</span></div>
+            <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-slate-700 inline-block"></span> <span>Inactivo / 0 bar</span></div>
+          </div>
+        </div>
+
+        <!-- LIENZO SVG INTERACTIVO DEL CUERPO DE VÁLVULAS -->
+        <div class="w-full overflow-x-auto bg-[#070B12] rounded-lg border border-slate-800/80 p-2 flex justify-center items-center">
+          <svg id="hydraulic-circuit-svg" viewBox="0 0 1000 480" class="w-full max-w-[980px] h-auto select-none">
+            <defs>
+              <!-- Marcador de flecha para flujo de aceite -->
+              <marker id="arrow-red" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#EF4444"/>
+              </marker>
+              <marker id="arrow-cyan" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#38BDF8"/>
+              </marker>
+              <marker id="arrow-green" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#10B981"/>
+              </marker>
+              
+              <!-- Gradientes para solenoides -->
+              <linearGradient id="grad-active" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#DC2626"/>
+                <stop offset="100%" stop-color="#991B1B"/>
+              </linearGradient>
+              <linearGradient id="grad-pre" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#F59E0B"/>
+                <stop offset="100%" stop-color="#B45309"/>
+              </linearGradient>
+              <linearGradient id="grad-off" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#1E293B"/>
+                <stop offset="100%" stop-color="#0F172A"/>
+              </linearGradient>
+            </defs>
+
+            <!-- ================= FONDO / PLACA DE MECATRÓNICA ================= -->
+            <rect x="20" y="20" width="960" height="440" rx="14" fill="#0A0F1D" stroke="#1E293B" stroke-width="2"/>
+            <text x="40" y="48" fill="#64748B" font-size="12" font-family="JetBrains Mono" font-weight="700">AUDI AG / DL501 0B5 — MECHATRONIC J743 HYDRAULIC CONTROL BLOCK</text>
+
+            <!-- ================= 1. BOMBA DE ACEITE ATF Y CÁRTER ================= -->
+            <g id="component-pump" transform="translate(45, 80)">
+              <rect x="0" y="0" width="105" height="70" rx="8" fill="#131C31" stroke="#334155" stroke-width="1.5"/>
+              <circle cx="52" cy="35" r="22" fill="#1E293B" stroke="#475569" stroke-width="1.5"/>
+              <!-- Aspas de bomba -->
+              <line x1="52" y1="18" x2="52" y2="52" stroke="#94A3B8" stroke-width="2"/>
+              <line x1="35" y1="35" x2="69" y2="35" stroke="#94A3B8" stroke-width="2"/>
+              <text x="52" y="62" fill="#94A3B8" font-size="9" font-family="Inter" font-weight="bold" text-anchor="middle">BOMBA ATF</text>
+              <text x="52" y="-6" fill="#64748B" font-size="9" font-family="JetBrains Mono" text-anchor="middle">Sumidero / Filtro</text>
+            </g>
+
+            <!-- ================= 2. VÁLVULA DE PRESIÓN PRINCIPAL EPC (N472) ================= -->
+            <g id="valve-N472" transform="translate(195, 80)">
+              <rect id="rect-N472" x="0" y="0" width="110" height="70" rx="8" fill="url(#grad-active)" stroke="#EF4444" stroke-width="2"/>
+              <text x="55" y="24" fill="#FFFFFF" font-size="11" font-family="JetBrains Mono" font-weight="bold" text-anchor="middle">N472 (EPC)</text>
+              <text x="55" y="40" fill="#E2E8F0" font-size="8.5" font-family="Inter" text-anchor="middle">Presión Línea</text>
+              <rect x="15" y="48" width="80" height="15" rx="3" fill="#000000" opacity="0.4"/>
+              <text id="svg-press-N472" x="55" y="59" fill="#38BDF8" font-size="9.5" font-family="JetBrains Mono" font-weight="bold" text-anchor="middle">14.5 bar</text>
+            </g>
+
+            <!-- ================= 3. VÁLVULA DE REFRIGERACIÓN (N471) ================= -->
+            <g id="valve-N471" transform="translate(45, 200)">
+              <rect id="rect-N471" x="0" y="0" width="105" height="65" rx="8" fill="url(#grad-active)" stroke="#EF4444" stroke-width="1.5"/>
+              <text x="52" y="22" fill="#FFFFFF" font-size="10.5" font-family="JetBrains Mono" font-weight="bold" text-anchor="middle">N471</text>
+              <text x="52" y="38" fill="#E2E8F0" font-size="8" font-family="Inter" text-anchor="middle">Refrig. ATF</text>
+              <text id="svg-press-N471" x="52" y="55" fill="#38BDF8" font-size="9" font-family="JetBrains Mono" font-weight="bold" text-anchor="middle">4.2 bar</text>
+            </g>
+
+            <!-- ================= 4. CIRCUITOS DE EMBRAGUE: K1 (Impar) y K2 (Par) ================= -->
+            <!-- Válvula de Seguridad N435 (K1) -->
+            <g id="valve-N435" transform="translate(365, 60)">
+              <rect id="rect-N435" x="0" y="0" width="100" height="52" rx="6" fill="url(#grad-active)" stroke="#EF4444" stroke-width="1.5"/>
+              <text x="50" y="20" fill="#FFFFFF" font-size="10" font-family="JetBrains Mono" font-weight="bold" text-anchor="middle">N435 (K1 Cut)</text>
+              <text id="svg-state-N435" x="50" y="38" fill="#F87171" font-size="9" font-family="Inter" font-weight="bold" text-anchor="middle">ON / ABIERTO</text>
+            </g>
+
+            <!-- Regulador Proporcional N436 (VFS K1) -->
+            <g id="valve-N436" transform="translate(490, 60)">
+              <rect id="rect-N436" x="0" y="0" width="115" height="52" rx="6" fill="url(#grad-active)" stroke="#EF4444" stroke-width="2"/>
+              <text x="57" y="20" fill="#FFFFFF" font-size="10" font-family="JetBrains Mono" font-weight="bold" text-anchor="middle">N436 (EPC K1)</text>
+              <text id="svg-press-N436" x="57" y="38" fill="#FEF08A" font-size="10" font-family="JetBrains Mono" font-weight="bold" text-anchor="middle">9.2 bar (82%)</text>
+            </g>
+
+            <!-- Válvula de Seguridad N439 (K2) -->
+            <g id="valve-N439" transform="translate(365, 130)">
+              <rect id="rect-N439" x="0" y="0" width="100" height="52" rx="6" fill="url(#grad-off)" stroke="#334155" stroke-width="1.5"/>
+              <text x="50" y="20" fill="#94A3B8" font-size="10" font-family="JetBrains Mono" font-weight="bold" text-anchor="middle">N439 (K2 Cut)</text>
+              <text id="svg-state-N439" x="50" y="38" fill="#64748B" font-size="9" font-family="Inter" font-weight="bold" text-anchor="middle">OFF / CERRADO</text>
+            </g>
+
+            <!-- Regulador Proporcional N440 (VFS K2) -->
+            <g id="valve-N440" transform="translate(490, 130)">
+              <rect id="rect-N440" x="0" y="0" width="115" height="52" rx="6" fill="url(#grad-off)" stroke="#334155" stroke-width="1.5"/>
+              <text x="57" y="20" fill="#94A3B8" font-size="10" font-family="JetBrains Mono" font-weight="bold" text-anchor="middle">N440 (EPC K2)</text>
+              <text id="svg-press-N440" x="57" y="38" fill="#64748B" font-size="10" font-family="JetBrains Mono" font-weight="bold" text-anchor="middle">0.0 bar (0%)</text>
+            </g>
+
+            <!-- REPRESENTACIÓN MECÁNICA DE EMBRAGUES K1 / K2 -->
+            <g id="clutch-block" transform="translate(660, 60)">
+              <!-- Embrague K1 (Exterior) -->
+              <rect id="svg-k1-clutch" x="0" y="0" width="135" height="55" rx="8" fill="#7F1D1D" stroke="#EF4444" stroke-width="2"/>
+              <text x="67" y="24" fill="#FFFFFF" font-size="11" font-family="JetBrains Mono" font-weight="bold" text-anchor="middle">EMBRAGUE K1</text>
+              <text x="67" y="42" fill="#FCA5A5" font-size="8.5" font-family="Inter" text-anchor="middle">Marchas Impares 1-3-5-7</text>
+
+              <!-- Embrague K2 (Interior) -->
+              <rect id="svg-k2-clutch" x="0" y="70" width="135" height="55" rx="8" fill="#1E293B" stroke="#334155" stroke-width="1.5"/>
+              <text x="67" y="94" fill="#94A3B8" font-size="11" font-family="JetBrains Mono" font-weight="bold" text-anchor="middle">EMBRAGUE K2</text>
+              <text x="67" y="112" fill="#64748B" font-size="8.5" font-family="Inter" text-anchor="middle">Marchas Pares 2-4-6-R</text>
+
+              <!-- Árboles Concéntricos de Salida -->
+              <rect x="135" y="20" width="140" height="15" fill="#EF4444" opacity="0.8"/>
+              <text x="205" y="32" fill="#FFFFFF" font-size="8" font-family="JetBrains Mono" font-weight="bold" text-anchor="middle">EJE 1 (MACIZO)</text>
+              <rect x="135" y="90" width="140" height="15" fill="#38BDF8" opacity="0.3"/>
+              <text x="205" y="102" fill="#E2E8F0" font-size="8" font-family="JetBrains Mono" font-weight="bold" text-anchor="middle">EJE 2 (HUECO)</text>
+            </g>
+
+            <!-- ================= 5. SOLENOIDES DE HORQUILLA SELECTORA ================= -->
+            <!-- N433 (Horquilla 1-3) -->
+            <g id="valve-N433" transform="translate(195, 230)">
+              <rect id="rect-N433" x="0" y="0" width="115" height="54" rx="6" fill="url(#grad-active)" stroke="#EF4444" stroke-width="1.5"/>
+              <text x="57" y="20" fill="#FFFFFF" font-size="10" font-family="JetBrains Mono" font-weight="bold" text-anchor="middle">N433 (N88)</text>
+              <text x="57" y="36" fill="#FCA5A5" font-size="8.5" font-family="Inter" text-anchor="middle">Horquilla 1 - 3</text>
+              <text id="svg-press-N433" x="57" y="48" fill="#FEF08A" font-size="8.5" font-family="JetBrains Mono" text-anchor="middle">4.8 bar (ON)</text>
+            </g>
+
+            <!-- N437 (Horquilla 2-R) -->
+            <g id="valve-N437" transform="translate(340, 230)">
+              <rect id="rect-N437" x="0" y="0" width="115" height="54" rx="6" fill="url(#grad-pre)" stroke="#F59E0B" stroke-width="1.5"/>
+              <text x="57" y="20" fill="#FFFFFF" font-size="10" font-family="JetBrains Mono" font-weight="bold" text-anchor="middle">N437 (N89)</text>
+              <text x="57" y="36" fill="#FDE68A" font-size="8.5" font-family="Inter" text-anchor="middle">Horquilla 2 - R</text>
+              <text id="svg-press-N437" x="57" y="48" fill="#FEF08A" font-size="8.5" font-family="JetBrains Mono" text-anchor="middle">Pre-2.ª (4.8 bar)</text>
+            </g>
+
+            <!-- N434 (Horquilla 5-7) -->
+            <g id="valve-N434" transform="translate(485, 230)">
+              <rect id="rect-N434" x="0" y="0" width="115" height="54" rx="6" fill="url(#grad-off)" stroke="#334155" stroke-width="1.5"/>
+              <text x="57" y="20" fill="#94A3B8" font-size="10" font-family="JetBrains Mono" font-weight="bold" text-anchor="middle">N434 (N90)</text>
+              <text x="57" y="36" fill="#64748B" font-size="8.5" font-family="Inter" text-anchor="middle">Horquilla 5 - 7</text>
+              <text id="svg-press-N434" x="57" y="48" fill="#64748B" font-size="8.5" font-family="JetBrains Mono" text-anchor="middle">0.0 bar (OFF)</text>
+            </g>
+
+            <!-- N438 (Horquilla 4-6) -->
+            <g id="valve-N438" transform="translate(630, 230)">
+              <rect id="rect-N438" x="0" y="0" width="115" height="54" rx="6" fill="url(#grad-off)" stroke="#334155" stroke-width="1.5"/>
+              <text x="57" y="20" fill="#94A3B8" font-size="10" font-family="JetBrains Mono" font-weight="bold" text-anchor="middle">N438 (N91)</text>
+              <text x="57" y="36" fill="#64748B" font-size="8.5" font-family="Inter" text-anchor="middle">Horquilla 4 - 6</text>
+              <text id="svg-press-N438" x="57" y="48" fill="#64748B" font-size="8.5" font-family="JetBrains Mono" text-anchor="middle">0.0 bar (OFF)</text>
+            </g>
+
+            <!-- ================= 6. CILINDROS Y HORQUILLAS SELECTORAS (PARTE INFERIOR) ================= -->
+            <g id="forks-mechanical-block" transform="translate(195, 330)">
+              <!-- Cilindro 1-3 -->
+              <rect x="0" y="0" width="115" height="70" rx="5" fill="#131C31" stroke="#334155" stroke-width="1.5"/>
+              <rect id="svg-piston-1-3" x="55" y="10" width="18" height="50" rx="3" fill="#10B981"/>
+              <line x1="20" y1="35" x2="95" y2="35" stroke="#475569" stroke-width="3"/>
+              <text x="57" y="82" fill="#E2E8F0" font-size="9" font-family="JetBrains Mono" font-weight="bold" text-anchor="middle">Cilindro 1-3</text>
+
+              <!-- Cilindro 2-R -->
+              <rect x="145" y="0" width="115" height="70" rx="5" fill="#131C31" stroke="#334155" stroke-width="1.5"/>
+              <rect id="svg-piston-2-R" x="195" y="10" width="18" height="50" rx="3" fill="#F59E0B"/>
+              <line x1="165" y1="35" x2="240" y2="35" stroke="#475569" stroke-width="3"/>
+              <text x="202" y="82" fill="#E2E8F0" font-size="9" font-family="JetBrains Mono" font-weight="bold" text-anchor="middle">Cilindro 2-R</text>
+
+              <!-- Cilindro 5-7 -->
+              <rect x="290" y="0" width="115" height="70" rx="5" fill="#131C31" stroke="#334155" stroke-width="1.5"/>
+              <rect id="svg-piston-5-7" x="338" y="10" width="18" height="50" rx="3" fill="#475569"/>
+              <line x1="310" y1="35" x2="385" y2="35" stroke="#475569" stroke-width="3"/>
+              <text x="347" y="82" fill="#94A3B8" font-size="9" font-family="JetBrains Mono" text-anchor="middle">Cilindro 5-7</text>
+
+              <!-- Cilindro 4-6 -->
+              <rect x="435" y="0" width="115" height="70" rx="5" fill="#131C31" stroke="#334155" stroke-width="1.5"/>
+              <rect id="svg-piston-4-6" x="483" y="10" width="18" height="50" rx="3" fill="#475569"/>
+              <line x1="455" y1="35" x2="530" y2="35" stroke="#475569" stroke-width="3"/>
+              <text x="492" y="82" fill="#94A3B8" font-size="9" font-family="JetBrains Mono" text-anchor="middle">Cilindro 4-6</text>
+            </g>
+
+            <!-- ================= TUBERÍAS HIDRÁULICAS CONECTIVAS ================= -->
+            <!-- Línea de bomba a EPC N472 -->
+            <path d="M 150 115 L 195 115" stroke="#EF4444" stroke-width="3.5" class="fluid-flow-fast" marker-end="url(#arrow-red)"/>
+            <!-- Línea de EPC N472 a colector principal -->
+            <path d="M 305 115 L 345 115 L 345 86 L 365 86" stroke="#EF4444" stroke-width="3" class="fluid-flow-active"/>
+            <path d="M 345 115 L 345 156 L 365 156" stroke="#334155" stroke-width="2"/>
+            <!-- N435 a N436 -->
+            <path d="M 465 86 L 490 86" stroke="#EF4444" stroke-width="3" class="fluid-flow-active"/>
+            <!-- N436 a K1 -->
+            <path d="M 605 86 L 660 86" stroke="#EF4444" stroke-width="3.5" class="fluid-flow-active" marker-end="url(#arrow-red)"/>
+            <!-- N439 a N440 -->
+            <path d="M 465 156 L 490 156" stroke="#334155" stroke-width="2"/>
+            <!-- N440 a K2 -->
+            <path d="M 605 156 L 660 156" stroke="#334155" stroke-width="2"/>
+            <!-- Línea a N433 (Horquilla 1-3) -->
+            <path d="M 250 150 L 250 230" stroke="#EF4444" stroke-width="2.5" class="fluid-flow-active"/>
+            <!-- N433 a Cilindro 1-3 -->
+            <path d="M 252 284 L 252 330" stroke="#EF4444" stroke-width="2.5" class="fluid-flow-active" marker-end="url(#arrow-red)"/>
+            <!-- Línea a N437 (Horquilla 2-R) -->
+            <path d="M 397 215 L 397 230" stroke="#F59E0B" stroke-width="2" class="fluid-flow-active"/>
+            <!-- N437 a Cilindro 2-R -->
+            <path d="M 397 284 L 397 330" stroke="#F59E0B" stroke-width="2" class="fluid-flow-active" marker-end="url(#arrow-red)"/>
+          </svg>
+        </div>
+
+        <!-- Leyenda Inferior del Esquema -->
+        <div class="mt-3 flex flex-wrap items-center justify-between text-xs text-slate-400 border-t border-slate-800 pt-3">
+          <span>Unidad Mecatrónica J743: Comunicación CAN Bus 500 kbps con ECU del motor EA888.</span>
+          <span class="font-mono text-slate-500">Alimentación: 12.0 V • Resistencia Bobinas: 4.8 Ω</span>
+        </div>
+      </div>
+
+      <!-- CARD 4: TABLA EN VIVO DE ESTADO DE TODOS LOS SOLENOIDES (N433 - N472) -->
+      <div class="bg-audi-card border border-audi-border rounded-xl p-5 shadow-lg">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
+          <h3 class="font-bold text-sm text-white uppercase tracking-wider flex items-center gap-2">
+            <span>Matriz de Excitación y Presión de Solenoides en Tiempo Real</span>
+          </h3>
+          <span class="text-xs font-mono text-slate-400">10 Actuadores Electrohidráulicos</span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs font-mono border-collapse">
+            <thead>
+              <tr class="bg-slate-900/90 text-slate-400 border-b border-slate-700">
+                <th class="py-2.5 px-3 font-semibold">Código Audi</th>
+                <th class="py-2.5 px-3 font-semibold">Código Genérico</th>
+                <th class="py-2.5 px-3 font-semibold">Función Técnica</th>
+                <th class="py-2.5 px-3 font-semibold text-center">Estado</th>
+                <th class="py-2.5 px-3 font-semibold text-center">Voltaje (V)</th>
+                <th class="py-2.5 px-3 font-semibold text-center">Corriente (mA)</th>
+                <th class="py-2.5 px-3 font-semibold text-center">PWM (%)</th>
+                <th class="py-2.5 px-3 font-semibold text-right">Presión (bar)</th>
+              </tr>
+            </thead>
+            <tbody id="solenoid-table-body" class="divide-y divide-slate-800/80">
+              <!-- Se llena dinámicamente con JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- SECCIÓN INFERIOR: EXPLICACIÓN TÉCNICA Y DIAGNÓSTICO      -->
+  <!-- ======================================================== -->
+  <section class="p-3 lg:p-6 max-w-[1700px] w-full mx-auto grid grid-cols-1 lg:grid-cols-2 gap-5 mb-8">
+    
+    <!-- CARD 5: DESCRIPCIÓN TÉCNICA DEL FLUJO DE FLUIDOS -->
+    <div class="bg-audi-card border border-audi-border rounded-xl p-5 shadow-lg flex flex-col justify-between">
+      <div>
+        <h3 class="font-bold text-sm text-white uppercase tracking-wider border-b border-slate-800 pb-2 mb-3 flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+          <span>Ruta Hidráulica y Flujo de Aceite en Tiempo Real</span>
+        </h3>
+        <ul id="fluid-steps-list" class="space-y-2.5 text-xs text-slate-300 leading-relaxed font-sans">
+          <!-- Pasos cargados dinámicamente -->
+        </ul>
+      </div>
+
+      <div class="mt-4 pt-3 border-t border-slate-800">
+        <h4 class="text-xs font-bold text-slate-400 uppercase mb-1">Fundamento Mecatrónico:</h4>
+        <p id="gear-tech-summary" class="text-xs text-slate-400 leading-relaxed">
+          Cargando análisis de ingeniería...
+        </p>
+      </div>
+    </div>
+
+    <!-- CARD 6: CONSOLA DE DIAGNÓSTICO EN VIVO (J743 SELF-TEST) -->
+    <div class="bg-audi-card border border-audi-border rounded-xl p-5 shadow-lg flex flex-col font-mono">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
+        <h3 class="font-bold text-sm text-white uppercase tracking-wider flex items-center gap-2">
+          <span class="text-audi-cyan">▶</span>
+          <span>Consola de Diagnóstico OBD-II / CAN Bus</span>
+        </h3>
+        <span id="dtc-status-badge" class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded">
+          SIN CÓDIGOS DE FALLA (NO DTC)
+        </span>
+      </div>
+
+      <div id="diagnostic-console" class="bg-[#05080E] p-3 rounded-lg border border-slate-800/90 text-xs text-slate-300 h-64 overflow-y-auto space-y-1">
+        <div class="text-slate-500">// AUDI VAS 6154 / VCDS TELEMETRY STREAM INITIATED</div>
+        <div class="text-slate-500">// Módulo 02 - Auto Trans (J743 - DL501 0B5)</div>
+        <div class="text-emerald-400">>> Bus CAN Tracción: 500 kbps sincronizado.</div>
+        <div class="text-slate-300">>> Solenoide N433 (1-3): Resistencia nominal 4.8 Ω (Leído: 4.89 Ω) - OK</div>
+        <div class="text-slate-300">>> Solenoide N436 (EPC K1): Control PWM 1000 Hz activo - OK</div>
+        <div class="text-slate-300">>> Sensor de posición G487: Carrera validada en +8.50 mm - OK</div>
+        <div class="text-slate-300">>> Sensor de presión G193: Señal analógica coherente (0.5V - 4.5V) - OK</div>
+        <div class="text-audi-cyan">>> Sistema listo para simulación y cambio dinámico de marchas.</div>
+      </div>
+
+      <div class="mt-3 flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-800">
+        <span>Prueba de aislamiento y resistencia: <strong>10/10 Solenoides Correctos</strong></span>
+        <button onclick="clearConsole()" class="hover:text-white transition">Limpiar terminal</button>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ======================================================== -->
+  <!-- PIE DE PÁGINA                                            -->
+  <!-- ======================================================== -->
+  <footer class="border-t border-slate-800 bg-[#06090F] py-4 px-6 text-center text-xs text-slate-500">
+    <p>Simulador y Diagrama Explicativo de Transmisión S-Tronic DL501 (0B5) • Audi Q5 2.0 TFSI (2012)</p>
+    <p class="text-[11px] text-slate-600 mt-1">Cátedra de Trenes de Potencia • Ingeniería Automotriz • Grupo 04 • ESPOCH 2026</p>
+  </footer>
+
+  <!-- SCRIPT PRINCIPAL DE LA APLICACIÓN -->
+  <script src="/static/js/simulator.js"></script>
+</body>
+</html>
